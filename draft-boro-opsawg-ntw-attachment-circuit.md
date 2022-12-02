@@ -3358,7 +3358,7 @@ module ietf-ac-ntw {
     }
   }
 
-  //AC network provisioning 
+  //AC network provisioning
 
   grouping ac {
     description
@@ -3413,7 +3413,7 @@ module ietf-ac-ntw {
         uses vpn-common:service-status;
       }
     }
-    // Security 
+    // Security
     container security {
       description
         "Site-specific security parameters.";
