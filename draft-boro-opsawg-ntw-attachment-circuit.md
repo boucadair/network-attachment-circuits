@@ -56,7 +56,7 @@ The AC network model is designed as an augmnetation to the Service Attachment Po
 
 The reader should be familiar with the terms defined in {{Section 2 of !I-D.ietf-opsawg-sap}}.
 
-This document uses the term "network model" as defined in {{?Section 2.1 of RFC8969}.
+This document uses the term "network model" as defined in {{Section 2.1 of ?RFC8969}.
 
 The meanings of the symbols in the YANG tree diagrams are defined in {{?RFC8340}}.
 
