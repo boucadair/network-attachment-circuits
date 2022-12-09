@@ -48,6 +48,7 @@ The AC network model is designed as an augmnetation to the Service Attachment Po
 
  The YANG data models in this document conform to the Network Management Datastore Architecture (NMDA) defined in {{!RFC8342}}.
 
+
 # Conventions and Definitions
 
 {::boilerplate bcp14-tagged}
@@ -3012,7 +3013,7 @@ module ietf-ac-ntw {
     }
   }
 
-  //AC network provisioning 
+  //AC network provisioning
 
   grouping ac {
     description
@@ -3082,7 +3083,7 @@ module ietf-ac-ntw {
         uses vpn-common:service-status;
       }
     }
-    // Security 
+    // Security
     container security {
       description
         "Site-specific security parameters.";
