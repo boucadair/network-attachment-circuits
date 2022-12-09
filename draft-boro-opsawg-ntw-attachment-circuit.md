@@ -92,8 +92,24 @@ TBC TBC
 
 ~~~~
 
+
 module: ietf-ac-ntw
   augment /nw:networks/nw:network:
+    +--rw specific-provisioning-profiles
+    |  +--rw valid-provider-identifiers
+    |     +--rw external-connectivity-identifier* [id]
+    |     |       {external-connectivity}?
+    |     |  +--rw id    string
+    |     +--rw encryption-profile-identifier* [id]
+    |     |  +--rw id    string
+    |     +--rw qos-profile-identifier* [id]
+    |     |  +--rw id    string
+    |     +--rw bfd-profile-identifier* [id]
+    |     |  +--rw id    string
+    |     +--rw forwarding-profile-identifier* [id]
+    |     |  +--rw id    string
+    |     +--rw routing-profile-identifier* [id]
+    |        +--rw id    string
     +--rw ac-profile* [id]
        +--rw id                   string
        +--rw l2-connection
@@ -111,9 +127,11 @@ module: ietf-ac-ntw
        |  |  |     |  +--:(translate)
        |  |  |     |     +--rw translate?   empty
        |  |  |     +--rw tag-1?             dot1q-types:vlanid
-       |  |  |     +--rw tag-1-type?        dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-1-type?
+       |  |  |     |       dot1q-types:dot1q-tag-type
        |  |  |     +--rw tag-2?             dot1q-types:vlanid
-       |  |  |     +--rw tag-2-type?        dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-2-type?
+       |  |  |             dot1q-types:dot1q-tag-type
        |  |  +--rw priority-tagged
        |  |  |  +--rw tag-type?   identityref
        |  |  +--rw qinq
@@ -129,9 +147,11 @@ module: ietf-ac-ntw
        |  |        |  +--:(translate)
        |  |        |     +--rw translate?   uint8
        |  |        +--rw tag-1?             dot1q-types:vlanid
-       |  |        +--rw tag-1-type?        dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-1-type?
+       |  |        |       dot1q-types:dot1q-tag-type
        |  |        +--rw tag-2?             dot1q-types:vlanid
-       |  |        +--rw tag-2-type?        dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-2-type?
+       |  |                dot1q-types:dot1q-tag-type
        |  +--rw (l2-service)?
        |     +--:(l2-tunnel-service)
        |     |  +--rw l2-tunnel-service
@@ -163,6 +183,9 @@ module: ietf-ac-ntw
        |     |  +--rw allow-own-as?             uint8
        |     |  +--rw prepend-global-as?        boolean
        |     |  +--rw send-default-route?       boolean
+       |     |  +--rw site-of-origin?           rt-types:route-origin
+       |     |  +--rw ipv6-site-of-origin?
+       |     |  |       rt-types:ipv6-route-origin
        |     |  +--rw redistribute-connected* [address-family]
        |     |  |  +--rw address-family    identityref
        |     |  |  +--rw enable?           boolean
@@ -223,9 +246,11 @@ module: ietf-ac-ntw
        |  |  |     |  +--:(translate)
        |  |  |     |     +--rw translate?   empty
        |  |  |     +--rw tag-1?             dot1q-types:vlanid
-       |  |  |     +--rw tag-1-type?        dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-1-type?
+       |  |  |     |       dot1q-types:dot1q-tag-type
        |  |  |     +--rw tag-2?             dot1q-types:vlanid
-       |  |  |     +--rw tag-2-type?        dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-2-type?
+       |  |  |             dot1q-types:dot1q-tag-type
        |  |  +--rw priority-tagged
        |  |  |  +--rw tag-type?   identityref
        |  |  +--rw qinq
@@ -241,9 +266,11 @@ module: ietf-ac-ntw
        |  |        |  +--:(translate)
        |  |        |     +--rw translate?   uint8
        |  |        +--rw tag-1?             dot1q-types:vlanid
-       |  |        +--rw tag-1-type?        dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-1-type?
+       |  |        |       dot1q-types:dot1q-tag-type
        |  |        +--rw tag-2?             dot1q-types:vlanid
-       |  |        +--rw tag-2-type?        dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-2-type?
+       |  |                dot1q-types:dot1q-tag-type
        |  +--rw (l2-service)?
        |  |  +--:(l2-tunnel-service)
        |  |  |  +--rw l2-tunnel-service
@@ -262,7 +289,8 @@ module: ietf-ac-ntw
        |  |     +--rw l2vpn-id?            vpn-common:vpn-id
        |  +--rw l2-termination-point?      string
        |  +--rw local-bridge-reference?    string
-       |  +--rw bearer-reference?          string {vpn-common:bearer-reference}?
+       |  +--rw bearer-reference?          string
+       |  |       {vpn-common:bearer-reference}?
        |  +--rw lag-interface {vpn-common:lag-interface}?
        |     +--rw lag-interface-id?   string
        |     +--rw member-link-list
@@ -271,30 +299,39 @@ module: ietf-ac-ntw
        +--rw ip-connection
        |  +--rw l3-termination-point?   string
        |  +--rw ipv4 {vpn-common:ipv4}?
-       |  |  +--rw local-address?                                 inet:ipv4-address
-       |  |  +--rw prefix-length?                                 uint8
-       |  |  +--rw address-allocation-type?                       identityref
+       |  |  +--rw local-address?
+       |  |  |       inet:ipv4-address
+       |  |  +--rw prefix-length?
+       |  |  |       uint8
+       |  |  +--rw address-allocation-type?
+       |  |  |       identityref
        |  |  +--rw (allocation-type)?
        |  |     +--:(provider-dhcp)
-       |  |     |  +--rw dhcp-service-type?                       enumeration
+       |  |     |  +--rw dhcp-service-type?
+       |  |     |  |       enumeration
        |  |     |  +--rw (service-type)?
        |  |     |     +--:(relay)
-       |  |     |     |  +--rw server-ip-address*                 inet:ipv4-address
+       |  |     |     |  +--rw server-ip-address*
+       |  |     |     |          inet:ipv4-address
        |  |     |     +--:(server)
        |  |     |        +--rw (address-assign)?
        |  |     |           +--:(number)
-       |  |     |           |  +--rw number-of-dynamic-address?   uint16
+       |  |     |           |  +--rw number-of-dynamic-address?
+       |  |     |           |          uint16
        |  |     |           +--:(explicit)
        |  |     |              +--rw customer-addresses
        |  |     |                 +--rw address-pool* [pool-id]
        |  |     |                    +--rw pool-id          string
-       |  |     |                    +--rw start-address    inet:ipv4-address
-       |  |     |                    +--rw end-address?     inet:ipv4-address
+       |  |     |                    +--rw start-address
+       |  |     |                    |       inet:ipv4-address
+       |  |     |                    +--rw end-address?
+       |  |     |                            inet:ipv4-address
        |  |     +--:(dhcp-relay)
        |  |     |  +--rw customer-dhcp-servers
        |  |     |     +--rw server-ip-address*   inet:ipv4-address
        |  |     +--:(static-addresses)
-       |  |        +--rw primary-address?                         -> ../address/address-id
+       |  |        +--rw primary-address?
+       |  |        |       -> ../address/address-id
        |  |        +--rw address* [address-id]
        |  |           +--rw address-id          string
        |  |           +--rw customer-address?   inet:ipv4-address
@@ -305,35 +342,45 @@ module: ietf-ac-ntw
        |     +--rw (allocation-type)?
        |        +--:(provider-dhcp)
        |        |  +--rw provider-dhcp
-       |        |     +--rw dhcp-service-type?                       enumeration
+       |        |     +--rw dhcp-service-type?
+       |        |     |       enumeration
        |        |     +--rw (service-type)?
        |        |        +--:(relay)
-       |        |        |  +--rw server-ip-address*                 inet:ipv6-address
+       |        |        |  +--rw server-ip-address*
+       |        |        |          inet:ipv6-address
        |        |        +--:(server)
        |        |           +--rw (address-assign)?
        |        |              +--:(number)
-       |        |              |  +--rw number-of-dynamic-address?   uint16
+       |        |              |  +--rw number-of-dynamic-address?
+       |        |              |          uint16
        |        |              +--:(explicit)
        |        |                 +--rw customer-addresses
        |        |                    +--rw address-pool* [pool-id]
        |        |                       +--rw pool-id          string
-       |        |                       +--rw start-address    inet:ipv6-address
-       |        |                       +--rw end-address?     inet:ipv6-address
+       |        |                       +--rw start-address
+       |        |                       |       inet:ipv6-address
+       |        |                       +--rw end-address?
+       |        |                               inet:ipv6-address
        |        +--:(dhcp-relay)
        |        |  +--rw customer-dhcp-servers
        |        |     +--rw server-ip-address*   inet:ipv6-address
        |        +--:(static-addresses)
-       |           +--rw primary-address?         -> ../address/address-id
+       |           +--rw primary-address?
+       |           |       -> ../address/address-id
        |           +--rw address* [address-id]
        |              +--rw address-id          string
        |              +--rw customer-address?   inet:ipv6-address
        +--rw routing-protocols
        |  +--rw routing-protocol* [id]
-       |     +--rw id        string
-       |     +--rw type?     identityref
+       |     +--rw id                  string
+       |     +--rw type?               identityref
+       |     +--rw routing-profiles* [id]
+       |     |  +--rw id      leafref
+       |     |  +--rw type?   identityref
        |     +--rw static
        |     |  +--rw cascaded-lan-prefixes
-       |     |     +--rw ipv4-lan-prefixes* [lan next-hop] {vpn-common:ipv4}?
+       |     |     +--rw ipv4-lan-prefixes* [lan next-hop]
+       |     |     |       {vpn-common:ipv4}?
        |     |     |  +--rw lan           inet:ipv4-prefix
        |     |     |  +--rw lan-tag?      string
        |     |     |  +--rw next-hop      union
@@ -347,7 +394,8 @@ module: ietf-ac-ntw
        |     |     |     +--ro oper-status
        |     |     |        +--ro status?        identityref
        |     |     |        +--ro last-change?   yang:date-and-time
-       |     |     +--rw ipv6-lan-prefixes* [lan next-hop] {vpn-common:ipv6}?
+       |     |     +--rw ipv6-lan-prefixes* [lan next-hop]
+       |     |             {vpn-common:ipv6}?
        |     |        +--rw lan           inet:ipv6-prefix
        |     |        +--rw lan-tag?      string
        |     |        +--rw next-hop      union
@@ -362,52 +410,105 @@ module: ietf-ac-ntw
        |     |              +--ro status?        identityref
        |     |              +--ro last-change?   yang:date-and-time
        |     +--rw bgp
-       |     |  +--rw description?              string
-       |     |  +--rw local-as?                 inet:as-number
-       |     |  +--rw peer-as                   inet:as-number
-       |     |  +--rw address-family?           identityref
-       |     |  +--rw local-address?            union
-       |     |  +--rw neighbor*                 inet:ip-address
-       |     |  +--rw multihop?                 uint8
-       |     |  +--rw as-override?              boolean
-       |     |  +--rw allow-own-as?             uint8
-       |     |  +--rw prepend-global-as?        boolean
-       |     |  +--rw send-default-route?       boolean
-       |     |  +--rw site-of-origin?           rt-types:route-origin
-       |     |  +--rw ipv6-site-of-origin?      rt-types:ipv6-route-origin
-       |     |  +--rw redistribute-connected* [address-family]
-       |     |  |  +--rw address-family    identityref
-       |     |  |  +--rw enable?           boolean
-       |     |  +--rw bgp-max-prefix
-       |     |  |  +--rw max-prefix?          uint32
-       |     |  |  +--rw warning-threshold?   decimal64
-       |     |  |  +--rw violate-action?      enumeration
-       |     |  |  +--rw restart-timer?       uint32
-       |     |  +--rw bgp-timers
-       |     |  |  +--rw keepalive?   uint16
-       |     |  |  +--rw hold-time?   uint16
-       |     |  +--rw authentication
-       |     |  |  +--rw enable?            boolean
-       |     |  |  +--rw keying-material
-       |     |  |     +--rw (option)?
-       |     |  |        +--:(ao)
-       |     |  |        |  +--rw enable-ao?          boolean
-       |     |  |        |  +--rw ao-keychain?        key-chain:key-chain-ref
-       |     |  |        +--:(md5)
-       |     |  |        |  +--rw md5-keychain?       key-chain:key-chain-ref
-       |     |  |        +--:(explicit)
-       |     |  |        |  +--rw key-id?             uint32
-       |     |  |        |  +--rw key?                string
-       |     |  |        |  +--rw crypto-algorithm?   identityref
-       |     |  |        +--:(ipsec)
-       |     |  |           +--rw sa?                 string
-       |     |  +--rw status
-       |     |     +--rw admin-status
-       |     |     |  +--rw status?        identityref
-       |     |     |  +--rw last-change?   yang:date-and-time
-       |     |     +--ro oper-status
-       |     |        +--ro status?        identityref
-       |     |        +--ro last-change?   yang:date-and-time
+       |     |  +--rw peer-groups
+       |     |  |  +--rw peer-group* [name]
+       |     |  |     +--rw name                      string
+       |     |  |     +--rw local-address?            union
+       |     |  |     +--rw description?              string
+       |     |  |     +--rw local-as?                 inet:as-number
+       |     |  |     +--rw peer-as                   inet:as-number
+       |     |  |     +--rw address-family?           identityref
+       |     |  |     +--rw multihop?                 uint8
+       |     |  |     +--rw as-override?              boolean
+       |     |  |     +--rw allow-own-as?             uint8
+       |     |  |     +--rw prepend-global-as?        boolean
+       |     |  |     +--rw send-default-route?       boolean
+       |     |  |     +--rw site-of-origin?
+       |     |  |     |       rt-types:route-origin
+       |     |  |     +--rw ipv6-site-of-origin?
+       |     |  |     |       rt-types:ipv6-route-origin
+       |     |  |     +--rw redistribute-connected* [address-family]
+       |     |  |     |  +--rw address-family    identityref
+       |     |  |     |  +--rw enable?           boolean
+       |     |  |     +--rw bgp-max-prefix
+       |     |  |     |  +--rw max-prefix?          uint32
+       |     |  |     |  +--rw warning-threshold?   decimal64
+       |     |  |     |  +--rw violate-action?      enumeration
+       |     |  |     |  +--rw restart-timer?       uint32
+       |     |  |     +--rw bgp-timers
+       |     |  |     |  +--rw keepalive?   uint16
+       |     |  |     |  +--rw hold-time?   uint16
+       |     |  |     +--rw authentication
+       |     |  |        +--rw enable?            boolean
+       |     |  |        +--rw keying-material
+       |     |  |           +--rw (option)?
+       |     |  |              +--:(ao)
+       |     |  |              |  +--rw enable-ao?          boolean
+       |     |  |              |  +--rw ao-keychain?
+       |     |  |              |          key-chain:key-chain-ref
+       |     |  |              +--:(md5)
+       |     |  |              |  +--rw md5-keychain?
+       |     |  |              |          key-chain:key-chain-ref
+       |     |  |              +--:(explicit)
+       |     |  |              |  +--rw key-id?             uint32
+       |     |  |              |  +--rw key?                string
+       |     |  |              |  +--rw crypto-algorithm?
+       |     |  |              |          identityref
+       |     |  |              +--:(ipsec)
+       |     |  |                 +--rw sa?                 string
+       |     |  +--rw neighbor* [remote-address]
+       |     |     +--rw remote-address            inet:ip-address
+       |     |     +--rw local-address?            union
+       |     |     +--rw peer-group?
+       |     |     |       -> ../../peer-groups/peer-group/name
+       |     |     +--rw description?              string
+       |     |     +--rw local-as?                 inet:as-number
+       |     |     +--rw peer-as                   inet:as-number
+       |     |     +--rw address-family?           identityref
+       |     |     +--rw multihop?                 uint8
+       |     |     +--rw as-override?              boolean
+       |     |     +--rw allow-own-as?             uint8
+       |     |     +--rw prepend-global-as?        boolean
+       |     |     +--rw send-default-route?       boolean
+       |     |     +--rw site-of-origin?
+       |     |     |       rt-types:route-origin
+       |     |     +--rw ipv6-site-of-origin?
+       |     |     |       rt-types:ipv6-route-origin
+       |     |     +--rw redistribute-connected* [address-family]
+       |     |     |  +--rw address-family    identityref
+       |     |     |  +--rw enable?           boolean
+       |     |     +--rw bgp-max-prefix
+       |     |     |  +--rw max-prefix?          uint32
+       |     |     |  +--rw warning-threshold?   decimal64
+       |     |     |  +--rw violate-action?      enumeration
+       |     |     |  +--rw restart-timer?       uint32
+       |     |     +--rw bgp-timers
+       |     |     |  +--rw keepalive?   uint16
+       |     |     |  +--rw hold-time?   uint16
+       |     |     +--rw authentication
+       |     |     |  +--rw enable?            boolean
+       |     |     |  +--rw keying-material
+       |     |     |     +--rw (option)?
+       |     |     |        +--:(ao)
+       |     |     |        |  +--rw enable-ao?          boolean
+       |     |     |        |  +--rw ao-keychain?
+       |     |     |        |          key-chain:key-chain-ref
+       |     |     |        +--:(md5)
+       |     |     |        |  +--rw md5-keychain?
+       |     |     |        |          key-chain:key-chain-ref
+       |     |     |        +--:(explicit)
+       |     |     |        |  +--rw key-id?             uint32
+       |     |     |        |  +--rw key?                string
+       |     |     |        |  +--rw crypto-algorithm?   identityref
+       |     |     |        +--:(ipsec)
+       |     |     |           +--rw sa?                 string
+       |     |     +--rw status
+       |     |        +--rw admin-status
+       |     |        |  +--rw status?        identityref
+       |     |        |  +--rw last-change?   yang:date-and-time
+       |     |        +--ro oper-status
+       |     |           +--ro status?        identityref
+       |     |           +--ro last-change?   yang:date-and-time
        |     +--rw ospf
        |     |  +--rw address-family?   identityref
        |     |  +--rw area-id           yang:dotted-quad
@@ -422,7 +523,8 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?
+       |     |  |        |          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
        |     |  |        |  +--rw key-id?             uint32
        |     |  |        |  +--rw key?                string
@@ -447,7 +549,8 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?
+       |     |  |        |          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
        |     |  |           +--rw key-id?             uint32
        |     |  |           +--rw key?                string
@@ -472,7 +575,8 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?
+       |     |  |        |          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
        |     |  |           +--rw key?                string
        |     |  |           +--rw crypto-algorithm?   identityref
@@ -499,6 +603,7 @@ module: ietf-ac-ntw
        |              +--ro last-change?   yang:date-and-time
        +--rw oam
        |  +--rw bfd
+       |     +--rw profile?                    leafref
        |     +--rw session-type?               identityref
        |     +--rw desired-min-tx-interval?    uint32
        |     +--rw required-min-rx-interval?   uint32
@@ -520,8 +625,12 @@ module: ietf-ac-ntw
           |  +--rw layer?     enumeration
           +--rw encryption-profile
              +--rw (profile)?
+                +--:(provider-profile)
+                |  +--rw profile-name?         leafref
                 +--:(customer-profile)
-                   +--rw customer-key-chain?   key-chain:key-chain-ref
+                   +--rw customer-key-chain?
+                           key-chain:key-chain-ref
+
 
 ~~~~
 {: #o-ntw-tree title="Overall Tree Structure"}
@@ -547,7 +656,7 @@ module: ietf-ac-ntw
 This module uses types defined in XXX.
 
 ~~~~
-<CODE BEGINS> file "ietf-ac@2022-11-30.yang"
+<CODE BEGINS> file "ietf-ac-ntw@2022-11-30.yang"
 module ietf-ac-ntw {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-ac-ntw";
@@ -1467,6 +1576,378 @@ module ietf-ac-ntw {
   }
 
   /* Routing */
+  //BGP-generic
+  //BGP-extended
+
+  grouping bgp-base {
+    description
+      "Configuration specific to BGP.";
+    leaf description {
+      type string;
+      description
+        "Includes a description of the BGP
+         session.
+
+         This description is meant to be used
+         for diagnostic purposes.  The semantic
+         of the description is local to an
+         implementation.";
+    }
+    leaf local-as {
+      type inet:as-number;
+      description
+        "Indicates a local AS Number (ASN), if
+         an ASN distinct from the ASN configured
+         at the VPN node level is needed.";
+    }
+    leaf peer-as {
+      type inet:as-number;
+      mandatory true;
+      description
+        "Indicates the customer's ASN when
+         the customer requests BGP routing.";
+    }
+    leaf address-family {
+      type identityref {
+        base vpn-common:address-family;
+      }
+      description
+        "This node contains the address families
+         to be activated.  'dual-stack' means
+         that both IPv4 and IPv6 will be
+         activated.";
+    }
+    leaf multihop {
+      type uint8;
+      description
+        "Describes the number of IP hops allowed
+         between a given BGP neighbor and
+         the PE.";
+    }
+    leaf as-override {
+      type boolean;
+      default "false";
+      description
+        "Defines whether ASN override is
+         enabled, i.e., replacing the ASN of
+         the customer specified in the AS_PATH
+         attribute with the local ASN.";
+    }
+    leaf allow-own-as {
+      type uint8;
+      default "0";
+      description
+        "If set, specifies the maximum number of
+         occurrences of the provider's ASN that
+         are permitted within the AS_PATH
+         before it is rejected.";
+    }
+    leaf prepend-global-as {
+      type boolean;
+      default "false";
+      description
+        "In some situations, the ASN that is
+         provided at the VPN node level may be
+         distinct from the ASN configured at the
+         VPN network access level.  When such
+         ASNs are provided, they are both
+         prepended to the BGP route updates
+         for this access.  To disable that
+         behavior, 'prepend-global-as'
+         must be set to 'false'.  In such a
+         case, the ASN that is provided at
+         the VPN node level is not prepended
+         to the BGP route updates for
+         this access.";
+    }
+    leaf send-default-route {
+      type boolean;
+      default "false";
+      description
+        "Defines whether default routes can be
+         advertised to a peer.  If set, the
+         default routes are advertised to a
+         peer.";
+    }
+    leaf site-of-origin {
+      when "../address-family = 'vpn-common:ipv4' "
+         + "or 'vpn-common:dual-stack'" {
+        description
+          "Only applies if IPv4 is activated.";
+      }
+      type rt-types:route-origin;
+      description
+        "The Site of Origin attribute is encoded
+         as a Route Origin Extended Community.
+         It is meant to uniquely identify the
+         set of routes learned from a site via a
+         particular CE-PE connection and is used
+         to prevent routing loops.";
+      reference
+        "RFC 4364: BGP/MPLS IP Virtual Private
+                   Networks (VPNs), Section 7";
+    }
+    leaf ipv6-site-of-origin {
+      when "../address-family = 'vpn-common:ipv6' "
+         + "or 'vpn-common:dual-stack'" {
+        description
+          "Only applies if IPv6 is activated.";
+      }
+      type rt-types:ipv6-route-origin;
+      description
+        "The IPv6 Site of Origin attribute is
+         encoded as an IPv6 Route Origin
+         Extended Community.  It is meant to
+         uniquely identify the set of routes
+         learned from a site via VRF
+         information.";
+      reference
+        "RFC 5701: IPv6 Address Specific BGP
+                   Extended Community
+                   Attribute";
+    }
+    list redistribute-connected {
+      key "address-family";
+      description
+        "Indicates, per address family, the
+         policy to follow for connected
+         routes.";
+      leaf address-family {
+        type identityref {
+          base vpn-common:address-family;
+        }
+        description
+          "Indicates the address family.";
+      }
+      leaf enable {
+        type boolean;
+        description
+          "Enables the redistribution of
+           connected routes.";
+      }
+    }
+    container bgp-max-prefix {
+      description
+        "Controls the behavior when a prefix
+         maximum is reached.";
+      leaf max-prefix {
+        type uint32;
+        default "5000";
+        description
+          "Indicates the maximum number of BGP
+           prefixes allowed in the BGP session.
+
+           It allows control of how many
+           prefixes can be received from a
+           neighbor.
+
+           If the limit is exceeded, the action
+           indicated in 'violate-action' will be
+           followed.";
+        reference
+          "RFC 4271: A Border Gateway Protocol 4
+                     (BGP-4), Section 8.2.2";
+      }
+      leaf warning-threshold {
+        type decimal64 {
+          fraction-digits 5;
+          range "0..100";
+        }
+        units "percent";
+        default "75";
+        description
+          "When this value is reached, a warning
+           notification will be triggered.";
+      }
+      leaf violate-action {
+        type enumeration {
+          enum warning {
+            description
+              "Only a warning message is sent to
+               the peer when the limit is
+               exceeded.";
+          }
+          enum discard-extra-paths {
+            description
+              "Discards extra paths when the
+               limit is exceeded.";
+          }
+          enum restart {
+            description
+              "The BGP session restarts after
+               the indicated time interval.";
+          }
+        }
+        description
+          "If the BGP neighbor 'max-prefix'
+           limit is reached, the action
+           indicated in 'violate-action'
+           will be followed.";
+      }
+      leaf restart-timer {
+        type uint32;
+        units "seconds";
+        description
+          "Time interval after which the BGP
+           session will be reestablished.";
+      }
+    }
+    container bgp-timers {
+      description
+        "Includes two BGP timers that can be
+         customized when building a VPN service
+         with BGP used as the CE-PE routing
+         protocol.";
+      leaf keepalive {
+        type uint16 {
+          range "0..21845";
+        }
+        units "seconds";
+        default "30";
+        description
+          "This timer indicates the KEEPALIVE
+           messages' frequency between a PE
+           and a BGP peer.
+
+           If set to '0', it indicates that
+           KEEPALIVE messages are disabled.
+
+           It is suggested that the maximum
+           time between KEEPALIVE messages be
+           one-third of the Hold Time
+           interval.";
+        reference
+          "RFC 4271: A Border Gateway Protocol 4
+                     (BGP-4), Section 4.4";
+      }
+      leaf hold-time {
+        type uint16 {
+          range "0 | 3..65535";
+        }
+        units "seconds";
+        default "90";
+        description
+          "Indicates the maximum number of
+           seconds that may elapse between the
+           receipt of successive KEEPALIVE
+           and/or UPDATE messages from the peer.
+
+           The Hold Time must be either zero or
+           at least three seconds.";
+        reference
+          "RFC 4271: A Border Gateway Protocol 4
+                     (BGP-4), Section 4.2";
+      }
+    }
+  }
+
+  grouping bgp-base-with-auth {
+    description
+      "Configuration specific to BGP.";
+    uses bgp-base;
+    container authentication {
+      description
+        "Container for BGP authentication
+         parameters between a PE and a CE.";
+      leaf enable {
+        type boolean;
+        default "false";
+        description
+          "Enables or disables authentication.";
+      }
+      container keying-material {
+        when "../enable = 'true'";
+        description
+          "Container for describing how a BGP
+           routing session is to be secured
+           between a PE and a CE.";
+        choice option {
+          description
+            "Choice of authentication options.";
+          case ao {
+            description
+              "Uses the TCP Authentication
+               Option (TCP-AO).";
+            reference
+              "RFC 5925: The TCP Authentication
+                         Option";
+            leaf enable-ao {
+              type boolean;
+              description
+                "Enables the TCP-AO.";
+            }
+            leaf ao-keychain {
+              type key-chain:key-chain-ref;
+              description
+                "Reference to the TCP-AO key
+                 chain.";
+              reference
+                "RFC 8177: YANG Data Model for
+                           Key Chains";
+            }
+          }
+          case md5 {
+            description
+              "Uses MD5 to secure the session.";
+            reference
+              "RFC 4364: BGP/MPLS IP Virtual
+                         Private Networks
+                         (VPNs), Section 13.2";
+            leaf md5-keychain {
+              type key-chain:key-chain-ref;
+              description
+                "Reference to the MD5 key
+                 chain.";
+              reference
+                "RFC 8177: YANG Data Model for
+                           Key Chains";
+            }
+          }
+          case explicit {
+            leaf key-id {
+              type uint32;
+              description
+                "Key identifier.";
+            }
+            leaf key {
+              type string;
+              description
+                "BGP authentication key.
+                 This model only supports the
+                 subset of keys that are
+                 representable as ASCII
+                 strings.";
+            }
+            leaf crypto-algorithm {
+              type identityref {
+                base key-chain:crypto-algorithm;
+              }
+              description
+                "Indicates the cryptographic
+                 algorithm associated with the
+                 key.";
+            }
+          }
+          case ipsec {
+            description
+              "Specifies a reference to an
+               Internet Key Exchange Protocol
+               (IKE) Security Association
+               (SA).";
+            leaf sa {
+              type string;
+              description
+                "Indicates the
+                 administrator-assigned name
+                 of the SA.";
+            }
+          }
+        }
+      }
+    }
+  }
+
+  //routing profile
 
   grouping routing-profile {
     description
@@ -1498,226 +1979,7 @@ module ietf-ac-ntw {
         }
         description
           "Configuration specific to BGP.";
-        leaf description {
-          type string;
-          description
-            "Includes a description of the BGP
-             session.
-
-             This description is meant to be used
-             for diagnostic purposes.  The semantic
-             of the description is local to an
-             implementation.";
-        }
-        leaf local-as {
-          type inet:as-number;
-          description
-            "Indicates a local AS Number (ASN), if
-             an ASN distinct from the ASN configured
-             at the VPN node level is needed.";
-        }
-        leaf peer-as {
-          type inet:as-number;
-          mandatory true;
-          description
-            "Indicates the customer's ASN when
-             the customer requests BGP routing.";
-        }
-        leaf address-family {
-          type identityref {
-            base vpn-common:address-family;
-          }
-          description
-            "This node contains the address families
-             to be activated.  'dual-stack' means
-             that both IPv4 and IPv6 will be
-             activated.";
-        }
-        leaf multihop {
-          type uint8;
-          description
-            "Describes the number of IP hops allowed
-             between a given BGP neighbor and
-             the PE.";
-        }
-        leaf as-override {
-          type boolean;
-          default "false";
-          description
-            "Defines whether ASN override is
-             enabled, i.e., replacing the ASN of
-             the customer specified in the AS_PATH
-             attribute with the local ASN.";
-        }
-        leaf allow-own-as {
-          type uint8;
-          default "0";
-          description
-            "If set, specifies the maximum number of
-             occurrences of the provider's ASN that
-             are permitted within the AS_PATH
-             before it is rejected.";
-        }
-        leaf prepend-global-as {
-          type boolean;
-          default "false";
-          description
-            "In some situations, the ASN that is
-             provided at the VPN node level may be
-             distinct from the ASN configured at the
-             VPN network access level.  When such
-             ASNs are provided, they are both
-             prepended to the BGP route updates
-             for this access.  To disable that
-             behavior, 'prepend-global-as'
-             must be set to 'false'.  In such a
-             case, the ASN that is provided at
-             the VPN node level is not prepended
-             to the BGP route updates for
-             this access.";
-        }
-        leaf send-default-route {
-          type boolean;
-          default "false";
-          description
-            "Defines whether default routes can be
-             advertised to a peer.  If set, the
-             default routes are advertised to a
-             peer.";
-        }
-        list redistribute-connected {
-          key "address-family";
-          description
-            "Indicates, per address family, the
-             policy to follow for connected
-             routes.";
-          leaf address-family {
-            type identityref {
-              base vpn-common:address-family;
-            }
-            description
-              "Indicates the address family.";
-          }
-          leaf enable {
-            type boolean;
-            description
-              "Enables the redistribution of
-               connected routes.";
-          }
-        }
-        container bgp-max-prefix {
-          description
-            "Controls the behavior when a prefix
-             maximum is reached.";
-          leaf max-prefix {
-            type uint32;
-            default "5000";
-            description
-              "Indicates the maximum number of BGP
-               prefixes allowed in the BGP session.
-
-               It allows control of how many
-               prefixes can be received from a
-               neighbor.
-
-               If the limit is exceeded, the action
-               indicated in 'violate-action' will be
-               followed.";
-            reference
-              "RFC 4271: A Border Gateway Protocol 4
-                         (BGP-4), Section 8.2.2";
-          }
-          leaf warning-threshold {
-            type decimal64 {
-              fraction-digits 5;
-              range "0..100";
-            }
-            units "percent";
-            default "75";
-            description
-              "When this value is reached, a warning
-               notification will be triggered.";
-          }
-          leaf violate-action {
-            type enumeration {
-              enum warning {
-                description
-                  "Only a warning message is sent to
-                   the peer when the limit is
-                   exceeded.";
-              }
-              enum discard-extra-paths {
-                description
-                  "Discards extra paths when the
-                   limit is exceeded.";
-              }
-              enum restart {
-                description
-                  "The BGP session restarts after
-                   the indicated time interval.";
-              }
-            }
-            description
-              "If the BGP neighbor 'max-prefix'
-               limit is reached, the action
-               indicated in 'violate-action'
-               will be followed.";
-          }
-          leaf restart-timer {
-            type uint32;
-            units "seconds";
-            description
-              "Time interval after which the BGP
-               session will be reestablished.";
-          }
-        }
-        container bgp-timers {
-          description
-            "Includes two BGP timers that can be
-             customized when building a VPN service
-             with BGP used as the CE-PE routing
-             protocol.";
-          leaf keepalive {
-            type uint16 {
-              range "0..21845";
-            }
-            units "seconds";
-            default "30";
-            description
-              "This timer indicates the KEEPALIVE
-               messages' frequency between a PE
-               and a BGP peer.
-
-               If set to '0', it indicates that
-               KEEPALIVE messages are disabled.
-
-               It is suggested that the maximum
-               time between KEEPALIVE messages be
-               one-third of the Hold Time
-               interval.";
-            reference
-              "RFC 4271: A Border Gateway Protocol 4
-                         (BGP-4), Section 4.4";
-          }
-          leaf hold-time {
-            type uint16 {
-              range "0 | 3..65535";
-            }
-            units "seconds";
-            default "90";
-            description
-              "Indicates the maximum number of
-               seconds that may elapse between the
-               receipt of successive KEEPALIVE
-               and/or UPDATE messages from the peer.
-
-               The Hold Time must be either zero or
-               at least three seconds.";
-            reference
-              "RFC 4271: A Border Gateway Protocol 4
-                         (BGP-4), Section 4.2";
-          }
-        }
+        uses bgp-base;
       }
       container ospf {
         when "derived-from-or-self(../type, "
@@ -1962,6 +2224,27 @@ module ietf-ac-ntw {
         description
           "Type of routing protocol.";
       }
+      list routing-profiles {
+        key "id";
+        description
+          "Routing profiles.";
+        leaf id {
+          type leafref {
+            path "/nw:networks/nw:network"
+               + "/ac-ntw:specific-provisioning-profiles/valid-provider-identifiers"
+               + "/routing-profile-identifier/id";
+          }
+          description
+            "Routing profile to be used.";
+        }
+        leaf type {
+          type identityref {
+            base vpn-common:ie-type;
+          }
+          description
+            "Import, export, or both.";
+        }
+      }
       container static {
         when "derived-from-or-self(../type, "
            + "'vpn-common:static-routing')" {
@@ -2083,383 +2366,64 @@ module ietf-ac-ntw {
         }
         description
           "Configuration specific to BGP.";
-        leaf description {
-          type string;
+        container peer-groups {
           description
-            "Includes a description of the BGP
-             session.
-
-             This description is meant to be used
-             for diagnostic purposes.  The semantic
-             of the description is local to an
-             implementation.";
-        }
-        leaf local-as {
-          type inet:as-number;
-          description
-            "Indicates a local AS Number (ASN), if
-             an ASN distinct from the ASN configured
-             at the VPN node level is needed.";
-        }
-        leaf peer-as {
-          type inet:as-number;
-          mandatory true;
-          description
-            "Indicates the customer's ASN when
-             the customer requests BGP routing.";
-        }
-        leaf address-family {
-          type identityref {
-            base vpn-common:address-family;
-          }
-          description
-            "This node contains the address families
-             to be activated.  'dual-stack' means
-             that both IPv4 and IPv6 will be
-             activated.";
-        }
-        leaf local-address {
-          type union {
-            type inet:ip-address;
-            type if:interface-ref;
-          }
-          description
-            "Sets the local IP address to use for
-             the BGP transport session.  This may be
-             expressed as either an IP address or a
-             reference to an interface.";
-        }
-        leaf-list neighbor {
-          type inet:ip-address;
-          description
-            "IP address(es) of the BGP neighbor.
-             IPv4 and IPv6 neighbors may be
-             indicated if two sessions will be used
-             for IPv4 and IPv6.";
-        }
-        leaf multihop {
-          type uint8;
-          description
-            "Describes the number of IP hops allowed
-             between a given BGP neighbor and
-             the PE.";
-        }
-        leaf as-override {
-          type boolean;
-          default "false";
-          description
-            "Defines whether ASN override is
-             enabled, i.e., replacing the ASN of
-             the customer specified in the AS_PATH
-             attribute with the local ASN.";
-        }
-        leaf allow-own-as {
-          type uint8;
-          default "0";
-          description
-            "If set, specifies the maximum number of
-             occurrences of the provider's ASN that
-             are permitted within the AS_PATH
-             before it is rejected.";
-        }
-        leaf prepend-global-as {
-          type boolean;
-          default "false";
-          description
-            "In some situations, the ASN that is
-             provided at the VPN node level may be
-             distinct from the ASN configured at the
-             VPN network access level.  When such
-             ASNs are provided, they are both
-             prepended to the BGP route updates
-             for this access.  To disable that
-             behavior, 'prepend-global-as'
-             must be set to 'false'.  In such a
-             case, the ASN that is provided at
-             the VPN node level is not prepended
-             to the BGP route updates for
-             this access.";
-        }
-        leaf send-default-route {
-          type boolean;
-          default "false";
-          description
-            "Defines whether default routes can be
-             advertised to a peer.  If set, the
-             default routes are advertised to a
-             peer.";
-        }
-        leaf site-of-origin {
-          when "../address-family = 'vpn-common:ipv4' "
-             + "or 'vpn-common:dual-stack'" {
+            "Configuration for BGP peer-groups";
+          list peer-group {
+            key "name";
             description
-              "Only applies if IPv4 is activated.";
-          }
-          type rt-types:route-origin;
-          description
-            "The Site of Origin attribute is encoded
-             as a Route Origin Extended Community.
-             It is meant to uniquely identify the
-             set of routes learned from a site via a
-             particular CE-PE connection and is used
-             to prevent routing loops.";
-          reference
-            "RFC 4364: BGP/MPLS IP Virtual Private
-                       Networks (VPNs), Section 7";
-        }
-        leaf ipv6-site-of-origin {
-          when "../address-family = 'vpn-common:ipv6' "
-             + "or 'vpn-common:dual-stack'" {
-            description
-              "Only applies if IPv6 is activated.";
-          }
-          type rt-types:ipv6-route-origin;
-          description
-            "The IPv6 Site of Origin attribute is
-             encoded as an IPv6 Route Origin
-             Extended Community.  It is meant to
-             uniquely identify the set of routes
-             learned from a site via VRF
-             information.";
-          reference
-            "RFC 5701: IPv6 Address Specific BGP
-                       Extended Community
-                       Attribute";
-        }
-        list redistribute-connected {
-          key "address-family";
-          description
-            "Indicates, per address family, the
-             policy to follow for connected
-             routes.";
-          leaf address-family {
-            type identityref {
-              base vpn-common:address-family;
-            }
-            description
-              "Indicates the address family.";
-          }
-          leaf enable {
-            type boolean;
-            description
-              "Enables the redistribution of
-               connected routes.";
-          }
-        }
-        container bgp-max-prefix {
-          description
-            "Controls the behavior when a prefix
-             maximum is reached.";
-          leaf max-prefix {
-            type uint32;
-            default "5000";
-            description
-              "Indicates the maximum number of BGP
-               prefixes allowed in the BGP session.
-
-               It allows control of how many
-               prefixes can be received from a
-               neighbor.
-
-               If the limit is exceeded, the action
-               indicated in 'violate-action' will be
-               followed.";
-            reference
-              "RFC 4271: A Border Gateway Protocol 4
-                         (BGP-4), Section 8.2.2";
-          }
-          leaf warning-threshold {
-            type decimal64 {
-              fraction-digits 5;
-              range "0..100";
-            }
-            units "percent";
-            default "75";
-            description
-              "When this value is reached, a warning
-               notification will be triggered.";
-          }
-          leaf violate-action {
-            type enumeration {
-              enum warning {
-                description
-                  "Only a warning message is sent to
-                   the peer when the limit is
-                   exceeded.";
-              }
-              enum discard-extra-paths {
-                description
-                  "Discards extra paths when the
-                   limit is exceeded.";
-              }
-              enum restart {
-                description
-                  "The BGP session restarts after
-                   the indicated time interval.";
-              }
-            }
-            description
-              "If the BGP neighbor 'max-prefix'
-               limit is reached, the action
-               indicated in 'violate-action'
-               will be followed.";
-          }
-          leaf restart-timer {
-            type uint32;
-            units "seconds";
-            description
-              "Time interval after which the BGP
-               session will be reestablished.";
-          }
-        }
-        container bgp-timers {
-          description
-            "Includes two BGP timers that can be
-             customized when building a VPN service
-             with BGP used as the CE-PE routing
-             protocol.";
-          leaf keepalive {
-            type uint16 {
-              range "0..21845";
-            }
-            units "seconds";
-            default "30";
-            description
-              "This timer indicates the KEEPALIVE
-               messages' frequency between a PE
-               and a BGP peer.
-
-               If set to '0', it indicates that
-               KEEPALIVE messages are disabled.
-
-               It is suggested that the maximum
-               time between KEEPALIVE messages be
-               one-third of the Hold Time
-               interval.";
-            reference
-              "RFC 4271: A Border Gateway Protocol 4
-                         (BGP-4), Section 4.4";
-          }
-          leaf hold-time {
-            type uint16 {
-              range "0 | 3..65535";
-            }
-            units "seconds";
-            default "90";
-            description
-              "Indicates the maximum number of
-               seconds that may elapse between the
-               receipt of successive KEEPALIVE
-               and/or UPDATE messages from the peer.
-
-               The Hold Time must be either zero or
-               at least three seconds.";
-            reference
-              "RFC 4271: A Border Gateway Protocol 4
-                         (BGP-4), Section 4.2";
-          }
-        }
-        container authentication {
-          description
-            "Container for BGP authentication
-             parameters between a PE and a CE.";
-          leaf enable {
-            type boolean;
-            default "false";
-            description
-              "Enables or disables authentication.";
-          }
-          container keying-material {
-            when "../enable = 'true'";
-            description
-              "Container for describing how a BGP
-               routing session is to be secured
-               between a PE and a CE.";
-            choice option {
+              "List of BGP peer-groups configured on the local system -
+               uniquely identified by peer-group name";
+            leaf name {
+              type string;
               description
-                "Choice of authentication options.";
-              case ao {
-                description
-                  "Uses the TCP Authentication
-                   Option (TCP-AO).";
-                reference
-                  "RFC 5925: The TCP Authentication
-                             Option";
-                leaf enable-ao {
-                  type boolean;
-                  description
-                    "Enables the TCP-AO.";
-                }
-                leaf ao-keychain {
-                  type key-chain:key-chain-ref;
-                  description
-                    "Reference to the TCP-AO key
-                     chain.";
-                  reference
-                    "RFC 8177: YANG Data Model for
-                               Key Chains";
-                }
-              }
-              case md5 {
-                description
-                  "Uses MD5 to secure the session.";
-                reference
-                  "RFC 4364: BGP/MPLS IP Virtual
-                             Private Networks
-                             (VPNs), Section 13.2";
-                leaf md5-keychain {
-                  type key-chain:key-chain-ref;
-                  description
-                    "Reference to the MD5 key
-                     chain.";
-                  reference
-                    "RFC 8177: YANG Data Model for
-                               Key Chains";
-                }
-              }
-              case explicit {
-                leaf key-id {
-                  type uint32;
-                  description
-                    "Key identifier.";
-                }
-                leaf key {
-                  type string;
-                  description
-                    "BGP authentication key.
-                     This model only supports the
-                     subset of keys that are
-                     representable as ASCII
-                     strings.";
-                }
-                leaf crypto-algorithm {
-                  type identityref {
-                    base key-chain:crypto-algorithm;
-                  }
-                  description
-                    "Indicates the cryptographic
-                     algorithm associated with the
-                     key.";
-                }
-              }
-              case ipsec {
-                description
-                  "Specifies a reference to an
-                   Internet Key Exchange Protocol
-                   (IKE) Security Association
-                   (SA).";
-                leaf sa {
-                  type string;
-                  description
-                    "Indicates the
-                     administrator-assigned name
-                     of the SA.";
-                }
-              }
+                "Name of the BGP peer-group";
             }
+            leaf local-address {
+              type union {
+                type inet:ip-address;
+                type if:interface-ref;
+              }
+              description
+                "Sets the local IP address to use for
+                 the BGP transport session.  This may be
+                 expressed as either an IP address or a
+                 reference to an interface.";
+            }
+            uses bgp-base-with-auth;
           }
         }
-        uses vpn-common:service-status;
+        list neighbor {
+          key "remote-address";
+          description
+            "List of BGP neighbors.";
+          leaf remote-address {
+            type inet:ip-address;
+            description
+              "The remote IP address of this entry's BGP peer.";
+          }
+          leaf local-address {
+            type union {
+              type inet:ip-address;
+              type if:interface-ref;
+            }
+            description
+              "Sets the local IP address to use for
+               the BGP transport session.  This may be
+               expressed as either an IP address or a
+               reference to an interface.";
+          }
+          leaf peer-group {
+            type leafref {
+              path "../../peer-groups/peer-group/name";
+            }
+            description
+              "The peer-group with which this neighbor is
+               associated.";
+          }
+          uses bgp-base-with-auth;
+          uses vpn-common:service-status;
+        }
       }
       container ospf {
         when "derived-from-or-self(../type, "
@@ -3048,7 +3012,7 @@ module ietf-ac-ntw {
     }
   }
 
-  //AC network provisioning
+  //AC network provisioning 
 
   grouping ac {
     description
@@ -3080,6 +3044,21 @@ module ietf-ac-ntw {
       container bfd {
         description
           "Container for BFD.";
+        leaf profile {
+          type leafref {
+            path "/nw:networks/nw:network"
+               + "/ac-ntw:specific-provisioning-profiles"
+               + "/valid-provider-identifiers"
+               + "/bfd-profile-identifier/id";
+          }
+          description
+            "Well-known service provider profile name.
+
+             The provider can propose some profiles
+             to the customer, depending on the
+             service level the customer wants to
+             achieve.";
+        }
         uses bfd;
         container authentication {
           presence "Enables BFD authentication";
@@ -3103,7 +3082,7 @@ module ietf-ac-ntw {
         uses vpn-common:service-status;
       }
     }
-    // Security
+    // Security 
     container security {
       description
         "Site-specific security parameters.";
@@ -3154,6 +3133,19 @@ module ietf-ac-ntw {
         choice profile {
           description
             "Choice for the encryption profile.";
+          case provider-profile {
+            leaf profile-name {
+              type leafref {
+                path "/nw:networks/nw:network"
+                   + "/ac-ntw:specific-provisioning-profiles"
+                   + "/valid-provider-identifiers"
+                   + "/encryption-profile-identifier/id";
+              }
+              description
+                "Name of the service provider's
+                 profile to be applied.";
+            }
+          }
           case customer-profile {
             leaf customer-key-chain {
               type key-chain:key-chain-ref;
@@ -3168,11 +3160,17 @@ module ietf-ac-ntw {
 
   augment "/nw:networks/nw:network" {
     description
-      "Add a list of AC profiles";
+      "Add a list of profiles.";
+    container specific-provisioning-profiles {
+      description
+        "Contains a set of valid profiles to reference
+         in the AC activation.";
+      uses vpn-common:vpn-profile-cfg;
+    }
     list ac-profile {
       key "id";
       description
-        "maintains a list of AC profiles";
+        "Maintains a list of AC profiles.";
       leaf id {
         type string;
         description
