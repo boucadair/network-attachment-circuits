@@ -5,8 +5,12 @@
 Operations and Management Area Working Group                M. Boucadair
 Internet-Draft                                                    Orange
 Intended status: Standards Track                              R. Roberts
-Expires: 12 June 2023                                            Juniper
-                                                         9 December 2022
+Expires: 15 June 2023                                            Juniper
+                                                           O. G. D. Dios
+                                                              Telefonica
+                                                           S. B. Giraldo
+                                                                   Nokia
+                                                        12 December 2022
 
 
            A Network YANG Data Model for Attachment Circuits
@@ -45,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 June 2023.
+   This Internet-Draft will expire on 15 June 2023.
 
 Copyright Notice
 
@@ -3346,9 +3350,9 @@ Table of Contents
               Boucadair, M., de Dios, O. G., Barguil, S., Wu, Q., and V.
               Lopez, "A YANG Network Model for Service Attachment Points
               (SAPs)", Work in Progress, Internet-Draft, draft-ietf-
-              opsawg-sap-10, 4 October 2022,
+              opsawg-sap-11, 12 December 2022,
               <https://datatracker.ietf.org/doc/html/draft-ietf-opsawg-
-              sap-10>.
+              sap-11>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -3430,3 +3434,13 @@ Authors' Addresses
    Richard Roberts
    Juniper
    Email: rroberts@juniper.net
+
+
+   Oscar Gonzalez de Dios
+   Telefonica
+   Email: oscar.gonzalezdedios@telefonica.com
+
+
+   Samier Barguil Giraldo
+   Nokia
+   Email: samier.barguil_giraldo@nokia.com
