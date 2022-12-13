@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-12-11T01:13:09.842265+00:00",
+  "timestamp": "2022-12-13T01:11:29.279494+00:00",
   "repo": "boucadair/network-attachment-circuits",
   "labels": [
     {
@@ -49,6 +49,23 @@
       "color": "ffffff"
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOIi4HlM5Y7E_3",
+      "title": "Attach (in/out) BGP policies",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/1",
+      "state": "OPEN",
+      "author": "boucadair",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-12-12T13:22:44Z",
+      "updatedAt": "2022-12-12T13:23:29Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
   "pulls": []
 }
