@@ -37,6 +37,11 @@ author:
     organization: Nokia
     email: samier.barguil_giraldo@nokia.com
 
+ -
+    fullname: Bo Wu
+    organization: Huawei Technologies
+    email: lana.wubo@huawei.com
+
 normative:
 
 informative:
