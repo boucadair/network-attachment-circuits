@@ -10,6 +10,8 @@ Expires: 17 June 2023                                            Juniper
                                                               Telefonica
                                                            S. B. Giraldo
                                                                    Nokia
+                                                                   B. Wu
+                                                     Huawei Technologies
                                                         14 December 2022
 
 
@@ -3390,3 +3392,8 @@ Authors' Addresses
    Samier Barguil Giraldo
    Nokia
    Email: samier.barguil_giraldo@nokia.com
+
+
+   Bo Wu
+   Huawei Technologies
+   Email: lana.wubo@huawei.com
