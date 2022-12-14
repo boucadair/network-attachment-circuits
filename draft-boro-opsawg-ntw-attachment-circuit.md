@@ -104,23 +104,9 @@ TBC TBC
 ~~~~
 
 
+
 module: ietf-ac-ntw
   augment /nw:networks/nw:network:
-    +--rw specific-provisioning-profiles
-    |  +--rw valid-provider-identifiers
-    |     +--rw external-connectivity-identifier* [id]
-    |     |       {external-connectivity}?
-    |     |  +--rw id    string
-    |     +--rw encryption-profile-identifier* [id]
-    |     |  +--rw id    string
-    |     +--rw qos-profile-identifier* [id]
-    |     |  +--rw id    string
-    |     +--rw bfd-profile-identifier* [id]
-    |     |  +--rw id    string
-    |     +--rw forwarding-profile-identifier* [id]
-    |     |  +--rw id    string
-    |     +--rw routing-profile-identifier* [id]
-    |        +--rw id    string
     +--rw ac-profile* [id]
        +--rw id                   string
        +--rw l2-connection
@@ -138,11 +124,9 @@ module: ietf-ac-ntw
        |  |  |     |  +--:(translate)
        |  |  |     |     +--rw translate?   empty
        |  |  |     +--rw tag-1?             dot1q-types:vlanid
-       |  |  |     +--rw tag-1-type?
-       |  |  |     |       dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-1-type?        dot1q-types:dot1q-tag-type
        |  |  |     +--rw tag-2?             dot1q-types:vlanid
-       |  |  |     +--rw tag-2-type?
-       |  |  |             dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-2-type?        dot1q-types:dot1q-tag-type
        |  |  +--rw priority-tagged
        |  |  |  +--rw tag-type?   identityref
        |  |  +--rw qinq
@@ -158,11 +142,9 @@ module: ietf-ac-ntw
        |  |        |  +--:(translate)
        |  |        |     +--rw translate?   uint8
        |  |        +--rw tag-1?             dot1q-types:vlanid
-       |  |        +--rw tag-1-type?
-       |  |        |       dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-1-type?        dot1q-types:dot1q-tag-type
        |  |        +--rw tag-2?             dot1q-types:vlanid
-       |  |        +--rw tag-2-type?
-       |  |                dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-2-type?        dot1q-types:dot1q-tag-type
        |  +--rw (l2-service)?
        |     +--:(l2-tunnel-service)
        |     |  +--rw l2-tunnel-service
@@ -195,8 +177,7 @@ module: ietf-ac-ntw
        |     |  +--rw prepend-global-as?        boolean
        |     |  +--rw send-default-route?       boolean
        |     |  +--rw site-of-origin?           rt-types:route-origin
-       |     |  +--rw ipv6-site-of-origin?
-       |     |  |       rt-types:ipv6-route-origin
+       |     |  +--rw ipv6-site-of-origin?      rt-types:ipv6-route-origin
        |     |  +--rw redistribute-connected* [address-family]
        |     |  |  +--rw address-family    identityref
        |     |  |  +--rw enable?           boolean
@@ -240,8 +221,10 @@ module: ietf-ac-ntw
   augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
     +--rw ac* [id]
        +--rw id                   string
+       +--rw ac-ref?              ac-svc:attachment-circuit-reference
        +--rw ac-profile* [profile-id]
        |  +--rw profile-id    -> /nw:networks/network/ac-profile/id
+       +--rw description?         string
        +--rw l2-connection
        |  +--rw encapsulation
        |  |  +--rw encap-type?        identityref
@@ -257,11 +240,9 @@ module: ietf-ac-ntw
        |  |  |     |  +--:(translate)
        |  |  |     |     +--rw translate?   empty
        |  |  |     +--rw tag-1?             dot1q-types:vlanid
-       |  |  |     +--rw tag-1-type?
-       |  |  |     |       dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-1-type?        dot1q-types:dot1q-tag-type
        |  |  |     +--rw tag-2?             dot1q-types:vlanid
-       |  |  |     +--rw tag-2-type?
-       |  |  |             dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-2-type?        dot1q-types:dot1q-tag-type
        |  |  +--rw priority-tagged
        |  |  |  +--rw tag-type?   identityref
        |  |  +--rw qinq
@@ -277,11 +258,9 @@ module: ietf-ac-ntw
        |  |        |  +--:(translate)
        |  |        |     +--rw translate?   uint8
        |  |        +--rw tag-1?             dot1q-types:vlanid
-       |  |        +--rw tag-1-type?
-       |  |        |       dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-1-type?        dot1q-types:dot1q-tag-type
        |  |        +--rw tag-2?             dot1q-types:vlanid
-       |  |        +--rw tag-2-type?
-       |  |                dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-2-type?        dot1q-types:dot1q-tag-type
        |  +--rw (l2-service)?
        |  |  +--:(l2-tunnel-service)
        |  |  |  +--rw l2-tunnel-service
@@ -300,8 +279,7 @@ module: ietf-ac-ntw
        |  |     +--rw l2vpn-id?            vpn-common:vpn-id
        |  +--rw l2-termination-point?      string
        |  +--rw local-bridge-reference?    string
-       |  +--rw bearer-reference?          string
-       |  |       {vpn-common:bearer-reference}?
+       |  +--rw bearer-reference?          string {vpn-common:bearer-reference}?
        |  +--rw lag-interface {vpn-common:lag-interface}?
        |     +--rw lag-interface-id?   string
        |     +--rw member-link-list
@@ -310,39 +288,30 @@ module: ietf-ac-ntw
        +--rw ip-connection
        |  +--rw l3-termination-point?   string
        |  +--rw ipv4 {vpn-common:ipv4}?
-       |  |  +--rw local-address?
-       |  |  |       inet:ipv4-address
-       |  |  +--rw prefix-length?
-       |  |  |       uint8
-       |  |  +--rw address-allocation-type?
-       |  |  |       identityref
+       |  |  +--rw local-address?                                 inet:ipv4-address
+       |  |  +--rw prefix-length?                                 uint8
+       |  |  +--rw address-allocation-type?                       identityref
        |  |  +--rw (allocation-type)?
        |  |     +--:(provider-dhcp)
-       |  |     |  +--rw dhcp-service-type?
-       |  |     |  |       enumeration
+       |  |     |  +--rw dhcp-service-type?                       enumeration
        |  |     |  +--rw (service-type)?
        |  |     |     +--:(relay)
-       |  |     |     |  +--rw server-ip-address*
-       |  |     |     |          inet:ipv4-address
+       |  |     |     |  +--rw server-ip-address*                 inet:ipv4-address
        |  |     |     +--:(server)
        |  |     |        +--rw (address-assign)?
        |  |     |           +--:(number)
-       |  |     |           |  +--rw number-of-dynamic-address?
-       |  |     |           |          uint16
+       |  |     |           |  +--rw number-of-dynamic-address?   uint16
        |  |     |           +--:(explicit)
        |  |     |              +--rw customer-addresses
        |  |     |                 +--rw address-pool* [pool-id]
        |  |     |                    +--rw pool-id          string
-       |  |     |                    +--rw start-address
-       |  |     |                    |       inet:ipv4-address
-       |  |     |                    +--rw end-address?
-       |  |     |                            inet:ipv4-address
+       |  |     |                    +--rw start-address    inet:ipv4-address
+       |  |     |                    +--rw end-address?     inet:ipv4-address
        |  |     +--:(dhcp-relay)
        |  |     |  +--rw customer-dhcp-servers
        |  |     |     +--rw server-ip-address*   inet:ipv4-address
        |  |     +--:(static-addresses)
-       |  |        +--rw primary-address?
-       |  |        |       -> ../address/address-id
+       |  |        +--rw primary-address?                         -> ../address/address-id
        |  |        +--rw address* [address-id]
        |  |           +--rw address-id          string
        |  |           +--rw customer-address?   inet:ipv4-address
@@ -353,31 +322,25 @@ module: ietf-ac-ntw
        |     +--rw (allocation-type)?
        |        +--:(provider-dhcp)
        |        |  +--rw provider-dhcp
-       |        |     +--rw dhcp-service-type?
-       |        |     |       enumeration
+       |        |     +--rw dhcp-service-type?                       enumeration
        |        |     +--rw (service-type)?
        |        |        +--:(relay)
-       |        |        |  +--rw server-ip-address*
-       |        |        |          inet:ipv6-address
+       |        |        |  +--rw server-ip-address*                 inet:ipv6-address
        |        |        +--:(server)
        |        |           +--rw (address-assign)?
        |        |              +--:(number)
-       |        |              |  +--rw number-of-dynamic-address?
-       |        |              |          uint16
+       |        |              |  +--rw number-of-dynamic-address?   uint16
        |        |              +--:(explicit)
        |        |                 +--rw customer-addresses
        |        |                    +--rw address-pool* [pool-id]
        |        |                       +--rw pool-id          string
-       |        |                       +--rw start-address
-       |        |                       |       inet:ipv6-address
-       |        |                       +--rw end-address?
-       |        |                               inet:ipv6-address
+       |        |                       +--rw start-address    inet:ipv6-address
+       |        |                       +--rw end-address?     inet:ipv6-address
        |        +--:(dhcp-relay)
        |        |  +--rw customer-dhcp-servers
        |        |     +--rw server-ip-address*   inet:ipv6-address
        |        +--:(static-addresses)
-       |           +--rw primary-address?
-       |           |       -> ../address/address-id
+       |           +--rw primary-address?         -> ../address/address-id
        |           +--rw address* [address-id]
        |              +--rw address-id          string
        |              +--rw customer-address?   inet:ipv6-address
@@ -386,12 +349,11 @@ module: ietf-ac-ntw
        |     +--rw id                  string
        |     +--rw type?               identityref
        |     +--rw routing-profiles* [id]
-       |     |  +--rw id      leafref
+       |     |  +--rw id      ac-svc:routing-profile-reference
        |     |  +--rw type?   identityref
        |     +--rw static
        |     |  +--rw cascaded-lan-prefixes
-       |     |     +--rw ipv4-lan-prefixes* [lan next-hop]
-       |     |     |       {vpn-common:ipv4}?
+       |     |     +--rw ipv4-lan-prefixes* [lan next-hop] {vpn-common:ipv4}?
        |     |     |  +--rw lan           inet:ipv4-prefix
        |     |     |  +--rw lan-tag?      string
        |     |     |  +--rw next-hop      union
@@ -405,8 +367,7 @@ module: ietf-ac-ntw
        |     |     |     +--ro oper-status
        |     |     |        +--ro status?        identityref
        |     |     |        +--ro last-change?   yang:date-and-time
-       |     |     +--rw ipv6-lan-prefixes* [lan next-hop]
-       |     |             {vpn-common:ipv6}?
+       |     |     +--rw ipv6-lan-prefixes* [lan next-hop] {vpn-common:ipv6}?
        |     |        +--rw lan           inet:ipv6-prefix
        |     |        +--rw lan-tag?      string
        |     |        +--rw next-hop      union
@@ -434,10 +395,8 @@ module: ietf-ac-ntw
        |     |  |     +--rw allow-own-as?             uint8
        |     |  |     +--rw prepend-global-as?        boolean
        |     |  |     +--rw send-default-route?       boolean
-       |     |  |     +--rw site-of-origin?
-       |     |  |     |       rt-types:route-origin
-       |     |  |     +--rw ipv6-site-of-origin?
-       |     |  |     |       rt-types:ipv6-route-origin
+       |     |  |     +--rw site-of-origin?           rt-types:route-origin
+       |     |  |     +--rw ipv6-site-of-origin?      rt-types:ipv6-route-origin
        |     |  |     +--rw redistribute-connected* [address-family]
        |     |  |     |  +--rw address-family    identityref
        |     |  |     |  +--rw enable?           boolean
@@ -455,23 +414,19 @@ module: ietf-ac-ntw
        |     |  |           +--rw (option)?
        |     |  |              +--:(ao)
        |     |  |              |  +--rw enable-ao?          boolean
-       |     |  |              |  +--rw ao-keychain?
-       |     |  |              |          key-chain:key-chain-ref
+       |     |  |              |  +--rw ao-keychain?        key-chain:key-chain-ref
        |     |  |              +--:(md5)
-       |     |  |              |  +--rw md5-keychain?
-       |     |  |              |          key-chain:key-chain-ref
+       |     |  |              |  +--rw md5-keychain?       key-chain:key-chain-ref
        |     |  |              +--:(explicit)
        |     |  |              |  +--rw key-id?             uint32
        |     |  |              |  +--rw key?                string
-       |     |  |              |  +--rw crypto-algorithm?
-       |     |  |              |          identityref
+       |     |  |              |  +--rw crypto-algorithm?   identityref
        |     |  |              +--:(ipsec)
        |     |  |                 +--rw sa?                 string
        |     |  +--rw neighbor* [remote-address]
        |     |     +--rw remote-address            inet:ip-address
        |     |     +--rw local-address?            union
-       |     |     +--rw peer-group?
-       |     |     |       -> ../../peer-groups/peer-group/name
+       |     |     +--rw peer-group?               -> ../../peer-groups/peer-group/name
        |     |     +--rw description?              string
        |     |     +--rw local-as?                 inet:as-number
        |     |     +--rw peer-as                   inet:as-number
@@ -481,10 +436,8 @@ module: ietf-ac-ntw
        |     |     +--rw allow-own-as?             uint8
        |     |     +--rw prepend-global-as?        boolean
        |     |     +--rw send-default-route?       boolean
-       |     |     +--rw site-of-origin?
-       |     |     |       rt-types:route-origin
-       |     |     +--rw ipv6-site-of-origin?
-       |     |     |       rt-types:ipv6-route-origin
+       |     |     +--rw site-of-origin?           rt-types:route-origin
+       |     |     +--rw ipv6-site-of-origin?      rt-types:ipv6-route-origin
        |     |     +--rw redistribute-connected* [address-family]
        |     |     |  +--rw address-family    identityref
        |     |     |  +--rw enable?           boolean
@@ -502,11 +455,9 @@ module: ietf-ac-ntw
        |     |     |     +--rw (option)?
        |     |     |        +--:(ao)
        |     |     |        |  +--rw enable-ao?          boolean
-       |     |     |        |  +--rw ao-keychain?
-       |     |     |        |          key-chain:key-chain-ref
+       |     |     |        |  +--rw ao-keychain?        key-chain:key-chain-ref
        |     |     |        +--:(md5)
-       |     |     |        |  +--rw md5-keychain?
-       |     |     |        |          key-chain:key-chain-ref
+       |     |     |        |  +--rw md5-keychain?       key-chain:key-chain-ref
        |     |     |        +--:(explicit)
        |     |     |        |  +--rw key-id?             uint32
        |     |     |        |  +--rw key?                string
@@ -534,8 +485,7 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?
-       |     |  |        |          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
        |     |  |        |  +--rw key-id?             uint32
        |     |  |        |  +--rw key?                string
@@ -560,8 +510,7 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?
-       |     |  |        |          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
        |     |  |           +--rw key-id?             uint32
        |     |  |           +--rw key?                string
@@ -586,8 +535,7 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?
-       |     |  |        |          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
        |     |  |           +--rw key?                string
        |     |  |           +--rw crypto-algorithm?   identityref
@@ -614,7 +562,7 @@ module: ietf-ac-ntw
        |              +--ro last-change?   yang:date-and-time
        +--rw oam
        |  +--rw bfd
-       |     +--rw profile?                    leafref
+       |     +--rw profile?                    ac-svc:bfd-profile-reference
        |     +--rw session-type?               identityref
        |     +--rw desired-min-tx-interval?    uint32
        |     +--rw required-min-rx-interval?   uint32
@@ -637,10 +585,10 @@ module: ietf-ac-ntw
           +--rw encryption-profile
              +--rw (profile)?
                 +--:(provider-profile)
-                |  +--rw profile-name?         leafref
+                |  +--rw profile-name?         ac-svc:encryption-profile-reference
                 +--:(customer-profile)
-                   +--rw customer-key-chain?
-                           key-chain:key-chain-ref
+                   +--rw customer-key-chain?   key-chain:key-chain-ref
+
 
 
 ~~~~
