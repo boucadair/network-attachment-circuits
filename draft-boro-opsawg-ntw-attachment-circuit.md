@@ -128,7 +128,7 @@ xxx
 
 #  YANG Module
 
-This module uses types defined in {{!RFC6991}, {{!RFC8177}}, {{!RFC8294}}, {{!RFC8343}}, {{!RFC9181}}, and IEEE Std 802.1Qcp.
+This module uses types defined in {{!RFC6991}}, {{!RFC8177}}, {{!RFC8294}}, {{!RFC8343}}, {{!RFC9181}}, and IEEE Std 802.1Qcp.
 
 ~~~~
 <CODE BEGINS> file "ietf-ac-ntw@2022-11-30.yang"
