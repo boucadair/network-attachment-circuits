@@ -9,11 +9,6 @@ module ietf-ac-ntw {
       "RFC 9181: A Common YANG Data Model for Layer 2 and Layer 3
                  VPNs";
   }
-  import ietf-l3vpn-ntw {
-    prefix l3nm;
-    reference
-      "RFC 9182: A YANG Network Data Model for Layer 3 VPNs";
-  }
   import ietf-inet-types {
     prefix inet;
     reference
@@ -69,7 +64,7 @@ module ietf-ac-ntw {
     "WG Web:   <https://datatracker.ietf.org/wg/opsawg/>
      WG List:  <mailto:opsawg@ietf.org>
 
-     Author:   Mohamed Boucadair
+     Editor:   Mohamed Boucadair
                <mailto:mohamed.boucadair@orange.com>
      Author:   Richard Roberts
                <mailto:rroberts@juniper.net>";
@@ -77,7 +72,7 @@ module ietf-ac-ntw {
     "This YANG module defines a generic YANG model for
      the configuration of attachment circuits.
 
-     Copyright (c) 2022 IETF Trust and the persons identified as
+     Copyright (c) 2023 IETF Trust and the persons identified as
      authors of the code.  All rights reserved.
 
      Redistribution and use in source and binary forms, with or
@@ -356,7 +351,7 @@ module ietf-ac-ntw {
            values may be defined, if needed.";
         leaf type {
           type identityref {
-            base l3nm:l2-tunnel-type;
+            base ac-svc:l2-tunnel-type;
           }
           description
             "Selects the tunnel termination option
@@ -364,7 +359,7 @@ module ietf-ac-ntw {
         }
         container pseudowire {
           when "derived-from-or-self(../type, "
-             + "'l3nm:pseudowire')" {
+             + "'ac-svc:pseudowire')" {
             description
               "Only applies when the Layer 2 service type is 'pseudowire'.";
           }
@@ -388,7 +383,7 @@ module ietf-ac-ntw {
           }
         }
         container vpls {
-          when "derived-from-or-self(../type, 'l3nm:vpls')" {
+          when "derived-from-or-self(../type, 'ac-svc:vpls')" {
             description
               "Only applies when the Layer 2 service type is 'vpls'.";
           }
@@ -409,7 +404,7 @@ module ietf-ac-ntw {
           }
         }
         container vxlan {
-          when "derived-from-or-self(../type, 'l3nm:vxlan')" {
+          when "derived-from-or-self(../type, 'ac-svc:vxlan')" {
             description
               "Only applies when the Layer 2 service type is 'vxlan'.";
           }
@@ -531,12 +526,12 @@ module ietf-ac-ntw {
       }
       leaf address-allocation-type {
         type identityref {
-          base l3nm:address-allocation-type;
+          base ac-svc:address-allocation-type;
         }
         must "not(derived-from-or-self(current(), "
-           + "'l3nm:slaac') or "
+           + "'ac-svc:slaac') or "
            + "derived-from-or-self(current(), "
-           + "'l3nm:provider-dhcp-slaac'))" {
+           + "'ac-svc:provider-dhcp-slaac'))" {
           error-message "SLAAC is only applicable "
                       + "to IPv6.";
         }
@@ -706,7 +701,7 @@ module ietf-ac-ntw {
       }
       leaf address-allocation-type {
         type identityref {
-          base l3nm:address-allocation-type;
+          base ac-svc:address-allocation-type;
         }
         description
           "Defines how addresses are allocated.
@@ -1331,7 +1326,7 @@ module ietf-ac-ntw {
              are to be activated.";
         }
         leaf area-address {
-          type l3nm:area-address;
+          type ac-svc:area-address;
           mandatory true;
           description
             "Area address.";
@@ -1561,7 +1556,7 @@ module ietf-ac-ntw {
             leaf next-hop {
               type union {
                 type inet:ip-address;
-                type l3nm:predefined-next-hop;
+                type ac-svc:predefined-next-hop;
               }
               description
                 "The next hop that is to be used
@@ -1610,7 +1605,7 @@ module ietf-ac-ntw {
             leaf next-hop {
               type union {
                 type inet:ip-address;
-                type l3nm:predefined-next-hop;
+                type ac-svc:predefined-next-hop;
               }
               description
                 "The next hop that is to be used for
@@ -1888,7 +1883,7 @@ module ietf-ac-ntw {
              are to be activated.";
         }
         leaf area-address {
-          type l3nm:area-address;
+          type ac-svc:area-address;
           mandatory true;
           description
             "Area address.";

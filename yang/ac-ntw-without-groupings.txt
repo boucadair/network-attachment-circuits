@@ -39,7 +39,7 @@ module: ietf-ac-ntw
        |     |  +--rw max-lsa?          uint32
        |     +--rw isis
        |     |  +--rw address-family?   identityref
-       |     |  +--rw area-address      l3nm:area-address
+       |     |  +--rw area-address      ac-svc:area-address
        |     |  +--rw level?            identityref
        |     |  +--rw metric?           uint16
        |     |  +--rw mode?             enumeration
@@ -349,7 +349,7 @@ module: ietf-ac-ntw
        |     |        +--ro last-change?   yang:date-and-time
        |     +--rw isis
        |     |  +--rw address-family?   identityref
-       |     |  +--rw area-address      l3nm:area-address
+       |     |  +--rw area-address      ac-svc:area-address
        |     |  +--rw level?            identityref
        |     |  +--rw metric?           uint16
        |     |  +--rw mode?             enumeration
