@@ -1,0 +1,25 @@
+  augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+    +--rw ac* [name]
+       +--rw name                 string
+       +--rw ac-ref?              ac-svc:attachment-circuit-reference
+       +--rw ac-profile* [profile-id]
+       |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+       +--rw description?         string
+       +--rw l2-connection
+       |  ...
+       +--rw ip-connection
+       |  ...
+       +--rw routing-protocols
+       |  ...
+       +--rw oam
+       |  ...
+       +--rw security
+          +--rw encryption {vpn-common:encryption}?
+          |  +--rw enabled?   boolean
+          |  +--rw layer?     enumeration
+          +--rw encryption-profile
+             +--rw (profile)?
+                +--:(provider-profile)
+                |  +--rw profile-name?         ac-svc:encryption-profile-reference
+                +--:(customer-profile)
+                   +--rw customer-key-chain?   key-chain:key-chain-ref

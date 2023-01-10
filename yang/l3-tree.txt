@@ -1,0 +1,79 @@
+  augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+    +--rw ac* [name]
+       +--rw name                 string
+       +--rw ac-ref?              ac-svc:attachment-circuit-reference
+       +--rw ac-profile* [profile-id]
+       |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+       +--rw description?         string
+       +--rw l2-connection
+       |  ...
+       +--rw ip-connection
+       |  +--rw l3-termination-point?   string
+       |  +--rw ipv4 {vpn-common:ipv4}?
+       |  |  +--rw local-address?                           inet:ipv4-address
+       |  |  +--rw prefix-length?                           uint8
+       |  |  +--rw address-allocation-type?                 identityref
+       |  |  +--rw (allocation-type)?
+       |  |     +--:(dynamic)
+       |  |     |  +--rw (address-assign)?
+       |  |     |  |  +--:(number)
+       |  |     |  |  |  +--rw number-of-dynamic-address?   uint16
+       |  |     |  |  +--:(explicit)
+       |  |     |  |     +--rw customer-addresses
+       |  |     |  |        +--rw address-pool* [pool-id]
+       |  |     |  |           +--rw pool-id          string
+       |  |     |  |           +--rw start-address    inet:ipv6-address
+       |  |     |  |           +--rw end-address?     inet:ipv6-address
+       |  |     |  +--rw (provider-dhcp)?
+       |  |     |  |  +--:(dhcp-service-type)
+       |  |     |  |  |  +--rw dhcp-service-type?           enumeration
+       |  |     |  |  +--:(service-type)
+       |  |     |  |     +--rw (service-type)?
+       |  |     |  |        +--:(relay)
+       |  |     |  |           +--rw server-ip-address*     inet:ipv6-address
+       |  |     |  +--rw (dhcp-relay)?
+       |  |     |     +--:(customer-dhcp-servers)
+       |  |     |        +--rw customer-dhcp-servers
+       |  |     |           +--rw server-ip-address*   inet:ipv6-address
+       |  |     +--:(static-addresses)
+       |  |        +--rw primary-address?                   -> ../address/address-id
+       |  |        +--rw address* [address-id]
+       |  |           +--rw address-id          string
+       |  |           +--rw customer-address?   inet:ipv6-address
+       |  +--rw ipv6 {vpn-common:ipv6}?
+       |     +--rw local-address?                           inet:ipv6-address
+       |     +--rw prefix-length?                           uint8
+       |     +--rw address-allocation-type?                 identityref
+       |     +--rw (allocation-type)?
+       |        +--:(dynamic)
+       |        |  +--rw (address-assign)?
+       |        |  |  +--:(number)
+       |        |  |  |  +--rw number-of-dynamic-address?   uint16
+       |        |  |  +--:(explicit)
+       |        |  |     +--rw customer-addresses
+       |        |  |        +--rw address-pool* [pool-id]
+       |        |  |           +--rw pool-id          string
+       |        |  |           +--rw start-address    inet:ipv6-address
+       |        |  |           +--rw end-address?     inet:ipv6-address
+       |        |  +--rw (provider-dhcp)?
+       |        |  |  +--:(dhcp-service-type)
+       |        |  |  |  +--rw dhcp-service-type?           enumeration
+       |        |  |  +--:(service-type)
+       |        |  |     +--rw (service-type)?
+       |        |  |        +--:(relay)
+       |        |  |           +--rw server-ip-address*     inet:ipv6-address
+       |        |  +--rw (dhcp-relay)?
+       |        |     +--:(customer-dhcp-servers)
+       |        |        +--rw customer-dhcp-servers
+       |        |           +--rw server-ip-address*   inet:ipv6-address
+       |        +--:(static-addresses)
+       |           +--rw primary-address?                   -> ../address/address-id
+       |           +--rw address* [address-id]
+       |              +--rw address-id          string
+       |              +--rw customer-address?   inet:ipv6-address
+       +--rw routing-protocols
+       |  ...
+       +--rw oam
+       |  ...
+       +--rw security
+          ...

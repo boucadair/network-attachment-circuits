@@ -1,0 +1,47 @@
+  augment /nw:networks/nw:network:
+    +--rw ac-profile* [name]
+       +--rw name                 string
+       +--rw l2-connection
+       +--rw ip-connection
+       +--rw routing-protocols
+       |  ...
+       +--rw oam
+          +--rw bfd {vpn-common:bfd}?
+             +--rw session-type?               identityref
+             +--rw desired-min-tx-interval?    uint32
+             +--rw required-min-rx-interval?   uint32
+             +--rw local-multiplier?           uint8
+             +--rw holdtime?                   uint32
+  augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+    +--rw ac* [name]
+       +--rw name                 string
+       +--rw ac-ref?              ac-svc:attachment-circuit-reference
+       +--rw ac-profile* [profile-id]
+       |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+       +--rw description?         string
+       +--rw l2-connection
+       |  ...
+       +--rw ip-connection
+       |  ...
+       +--rw routing-protocols
+       |  ...
+       +--rw oam
+       |  +--rw bfd
+       |     +--rw profile?                    ac-svc:bfd-profile-reference
+       |     +--rw session-type?               identityref
+       |     +--rw desired-min-tx-interval?    uint32
+       |     +--rw required-min-rx-interval?   uint32
+       |     +--rw local-multiplier?           uint8
+       |     +--rw holdtime?                   uint32
+       |     +--rw authentication!
+       |     |  +--rw key-chain?    key-chain:key-chain-ref
+       |     |  +--rw meticulous?   boolean
+       |     +--rw status
+       |        +--rw admin-status
+       |        |  +--rw status?        identityref
+       |        |  +--rw last-change?   yang:date-and-time
+       |        +--ro oper-status
+       |           +--ro status?        identityref
+       |           +--ro last-change?   yang:date-and-time
+       +--rw security
+          ...
