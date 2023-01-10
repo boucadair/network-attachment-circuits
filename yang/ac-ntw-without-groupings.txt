@@ -1,8 +1,8 @@
 
 module: ietf-ac-ntw
   augment /nw:networks/nw:network:
-    +--rw ac-profile* [id]
-       +--rw id                   string
+    +--rw ac-profile* [name]
+       +--rw name                 string
        +--rw l2-connection
        +--rw ip-connection
        +--rw routing-protocols
@@ -62,11 +62,11 @@ module: ietf-ac-ntw
              +--rw local-multiplier?           uint8
              +--rw holdtime?                   uint32
   augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
-    +--rw ac* [id]
-       +--rw id                   string
+    +--rw ac* [name]
+       +--rw name                 string
        +--rw ac-ref?              ac-svc:attachment-circuit-reference
        +--rw ac-profile* [profile-id]
-       |  +--rw profile-id    -> /nw:networks/network/ac-profile/id
+       |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
        +--rw description?         string
        +--rw l2-connection
        |  +--rw encapsulation

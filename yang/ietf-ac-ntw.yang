@@ -2455,13 +2455,13 @@ module ietf-ac-ntw {
       uses vpn-common:vpn-profile-cfg;
     }*/
     list ac-profile {
-      key "id";
+      key "name";
       description
         "Maintains a list of AC profiles.";
-      leaf id {
+      leaf name {
         type string;
         description
-          "An identifier of the AC.";
+          "Name of the AC.";
       }
       uses ac-ntw:ac-profile;
     }
@@ -2477,10 +2477,10 @@ module ietf-ac-ntw {
     description
       "Augments SAPs with AC provisioning details.";
     list ac {
-      key "id";
+      key "name";
       description
         "List of ACs.";
-      leaf id {
+      leaf name {
         type string;
         description
           "A local AC identifier.";
@@ -2497,7 +2497,7 @@ module ietf-ac-ntw {
           "List of AC profiles.";
         leaf profile-id {
           type leafref {
-            path "/nw:networks/nw:network/ac-profile/id";
+            path "/nw:networks/nw:network/ac-profile/name";
           }
           description
             "A reference to an AC profile.";
