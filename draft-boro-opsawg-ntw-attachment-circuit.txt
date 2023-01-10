@@ -5,14 +5,14 @@
 Operations and Management Area Working Group                M. Boucadair
 Internet-Draft                                                    Orange
 Intended status: Standards Track                              R. Roberts
-Expires: 17 June 2023                                            Juniper
+Expires: 14 July 2023                                            Juniper
                                                            O. G. D. Dios
                                                               Telefonica
                                                            S. B. Giraldo
                                                                    Nokia
                                                                    B. Wu
                                                      Huawei Technologies
-                                                        14 December 2022
+                                                         10 January 2023
 
 
            A Network YANG Data Model for Attachment Circuits
@@ -51,11 +51,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 June 2023.
+   This Internet-Draft will expire on 14 July 2023.
 
 Copyright Notice
 
-   Copyright (c) 2022 IETF Trust and the persons identified as the
+   Copyright (c) 2023 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -3298,9 +3298,9 @@ module: ietf-ac-ntw
               Boucadair, M., de Dios, O. G., Barguil, S., Wu, Q., and V.
               Lopez, "A YANG Network Model for Service Attachment Points
               (SAPs)", Work in Progress, Internet-Draft, draft-ietf-
-              opsawg-sap-11, 12 December 2022,
+              opsawg-sap-13, 9 January 2023,
               <https://datatracker.ietf.org/doc/html/draft-ietf-opsawg-
-              sap-11>.
+              sap-13>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
