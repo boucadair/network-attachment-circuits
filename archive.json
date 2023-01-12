@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-01-10T01:08:44.986778+00:00",
+  "timestamp": "2023-01-12T01:07:39.285895+00:00",
   "repo": "boucadair/network-attachment-circuits",
   "labels": [
     {
@@ -65,6 +65,30 @@
       "updatedAt": "2022-12-12T13:23:29Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 2,
+      "id": "I_kwDOIi4HlM5bCgjV",
+      "title": "Sample: Request An AC over An Existing Bearer",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/2",
+      "state": "OPEN",
+      "author": "sbarguil",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "\r\nIn This sample a AC is requested over existing bearer:\r\n\r\n```\r\n{\r\n  \"ietf-ac-svc:attachment-circuits\": {\r\n    \"ac\": [\r\n      {\r\n        \"name\": \"ac4585\",\r\n        \"description\": \"An AC on an existing bearer\",\r\n        \"requested-ac-start\": \"2023-12-12T05:00:00.00Z\",\r\n        \"l2-connection\": {\r\n          \"encapsulation\": {\r\n            \"type\": \"ietf-vpn-common:dot1q\",\r\n            \"dot1q\": {\r\n              \"tag-type\": \"ietf-vpn-common:c-vlan\",\r\n              \"cvlan-id\": 550\r\n            }\r\n          },\r\n          \"bearer-reference\": \"line-156\"\r\n        }\r\n      }\r\n    ]\r\n  }\r\n}\r\n```\r\n\r\nTo realize this request the controller **should** be aware of the existing bearers in the network.\r\n\r\n- If it is a brownfield scenario, the bearer can not be populate so how we consider this attribute can be obtained?\r\n\r\n- In greenfield scenarios, this parameter can exist, for example using the L3NM can be assigned in the VP-NETWORK-ACCESS. In this case, the controller should make a reverse lookup to discover the existing bearers in the network and find where to attach the new AC. This can be exahustive in big networks and can limit the usability. \r\n- As the bearer represents a concept itself can, we consider modeling the bearers? O something similar as Bridge Domain to group  SAPs or ACs?\r\n",
+      "createdAt": "2023-01-10T13:22:00Z",
+      "updatedAt": "2023-01-10T13:32:27Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "boucadair",
+          "authorAssociation": "OWNER",
+          "body": "Agree that it is useful to consider modeling the bearers as part of the service creation. This is the intent of https://github.com/boucadair/attachment-circuit-model/issues/5 ",
+          "createdAt": "2023-01-10T13:32:26Z",
+          "updatedAt": "2023-01-10T13:32:26Z"
+        }
+      ]
     }
   ],
   "pulls": []
