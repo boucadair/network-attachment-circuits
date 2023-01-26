@@ -50,19 +50,19 @@ informative:
 
 --- abstract
 
-This document specifies a network model for attachment circuits. The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service).
+This document specifies a network model for attachment circuits. The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service). The companion service model is specified in {{!I-D.boro-opsawg-teas-attachment-circuit}}.
 
-The module augments the SAP model with the detailed information for the provisioning of an AC in a PE.
+The module augments the SAP model with the detailed information for the provisioning of attachment circuits in Provider Edges (PEs).
 
 --- middle
 
 # Introduction
 
-The procedure to provision a service in a service provider network may depend on the practices adopted by a service provider, including the flow put in place for the provisioning of advanced network services and how they are bound to an attachment circuit. For example, the same attachment circuit may be used to host multiple services. In order to avoid service interference and redundant information in various locations, a service provider may expose an interface to manage ACs network-wide. Customers can then request a base attachment circuit to be put in place, and then refer to that base AC when requesting services that are bound to that AC.
+The procedure to provision a service in a service provider network may depend on the practices adopted by a service provider, including the flow put in place for the provisioning of advanced network services and how they are bound to an attachment circuit. For example, the same attachment circuit may be used to host multiple services. In order to avoid service interference and redundant information in various locations, a service provider may expose an interface to manage ACs network-wide. Customers can then request a base attachment circuit to be put in place, and then refer to that base AC when requesting services that are bound to that AC. {{!I-D.boro-opsawg-teas-attachment-circuit}} specifies a data model for managing ACs as a service.
 
 This document specifies a network model for attachment circuits. The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service).
 
-The document leverages {{!RFC9182}} and {{!RFC9291}} by adopting an AC provisioning structure that uses data nodes that were already defined in these RFCs.
+The document leverages {{!RFC9182}} and {{!RFC9291}} by adopting an AC provisioning structure that uses data nodes that are defined in these RFCs. Some refinements were introduced to cover, not only conventional service provider networks, but also specifics of other target deployments (cloud, for example).
 
 The AC network model is designed as an augmnetation to the Service Attachment Points (SAPs) model {{!I-D.ietf-opsawg-sap}}. An AC can be bound to a single or multiple SAPs. Likewise, the model is designed to accomdate deployments where a SAP can be bound to one or multiple ACs.
 
@@ -100,31 +100,81 @@ TBC.
 
 # Description of the Attachment Circuit YANG Module
 
-
 ## Overall Structure of the Module
 
-TBC TBC
+The overall tree structure of the module is shown in {{o-ntw}}. A node can host one or more SAPs as per {{!I-D.ietf-opsawg-sap}}. Each SAP terminate one or multiple ACs. The SAP model in {{!I-D.ietf-opsawg-sap}} is thus augmented with required AC-related information. Also, in order to ease the correlation between the AC exposed at the service layer and the one that is actually provisioned in the network operation, a reference to the AC exposed to the customer  ('ac-ref') is stored in the 'ac-ntw' module.
+
+An AC is uniquely identified and can be characterized using Layer 2 connectivity, Layer 3 connectivity, routing protocols, OAM, and security considerations. In order to factorize a set of data that is provisioned for a set of ACs, a set of profiled can be defined at the network level, and then called under the node level. The information contained in the profile are thus inherited, unless the corresponding data node is refined at the AC level. In such as case, the value provided at the AC level takes precedence over the global one.
 
 ~~~~
-xxx
+  augment /nw:networks/nw:network:
+    +--rw ac-profile* [name]
+       ...
+  augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+    +--rw ac* [name]
+       +--rw name                 string
+       +--rw ac-ref?              ac-svc:attachment-circuit-reference
+       +--rw ac-profile* [profile-id]
+       |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+       +--rw description?         string
+       +--rw l2-connection
+       |  ...
+       +--rw ip-connection
+       |  ...
+       +--rw routing-protocols
+       |  ...
+       +--rw oam
+       |  ...
+       +--rw security
+          ...
 ~~~~
 {: #o-ntw-tree title="Overall Tree Structure"}
 
-## AC Profiles
-
-## SAPs and ACs
+The full tree of the 'ac-ntw' is provided in {{full-tree}}.
 
 ## L2 Connection
 
+The  Layer 2 connection tree structure is shown in {{l2-tree}}.
+
+~~~~
+{::include ./yang/l2-tree.txt}
+~~~~
+{: #l2-tree title="Layer 2 Connection Tree Structure"}
+
 ## IP Connection
+
+The  Layer 3 connection tree structure is shown in {{l3-tree}}.
+~~~~
+{::include ./yang/l3-tree.txt}
+~~~~
+{: #l3-tree title="IP Connection Tree Structure"}
 
 ## Routing
 
+The routing tree structure is shown in {{rtg-tree}}.
+
+~~~~
+{::include ./yang/rtg-tree.txt}
+~~~~
+{: #rtg-tree title="Rotuing Tree Structure"}
+
 ## OAM
+
+The OAM tree structure is shown in {{oam-tree}}.
+
+~~~~
+{::include ./yang/oam-tree.txt}
+~~~~
+{: #oam-tree title="OAM Tree Structure"}
 
 ## Security
 
+The security tree structure is shown in {{sec-tree}}.
 
+~~~~
+{::include ./yang/security-tree.txt}
+~~~~
+{: #sec-tree title="Security Tree Structure"}
 
 #  YANG Module
 
@@ -198,7 +248,7 @@ This module uses types defined in {{!RFC6991}}, {{!RFC8177}}, {{!RFC8294}}, {{!R
 
 --- back
 
-# Full Tree
+# Full Tree {#full-tree}
 
 ~~~~
 {::include ./yang/ac-ntw-without-groupings.txt}
