@@ -102,7 +102,7 @@ TBC.
 
 ## Overall Structure of the Module
 
-The overall tree structure of the module is shown in {{o-ntw}}. A node can host one or more SAPs as per {{!I-D.ietf-opsawg-sap}}. Each SAP terminate one or multiple ACs. The SAP model in {{!I-D.ietf-opsawg-sap}} is thus augmented with required AC-related information. Also, in order to ease the correlation between the AC exposed at the service layer and the one that is actually provisioned in the network operation, a reference to the AC exposed to the customer  ('ac-ref') is stored in the 'ac-ntw' module.
+The overall tree structure of the module is shown in {{o-ntw-tree}}. A node can host one or more SAPs as per {{!I-D.ietf-opsawg-sap}}. Each SAP terminate one or multiple ACs. The SAP model in {{!I-D.ietf-opsawg-sap}} is thus augmented with required AC-related information. Also, in order to ease the correlation between the AC exposed at the service layer and the one that is actually provisioned in the network operation, a reference to the AC exposed to the customer  ('ac-ref') is stored in the 'ac-ntw' module.
 
 An AC is uniquely identified and can be characterized using Layer 2 connectivity, Layer 3 connectivity, routing protocols, OAM, and security considerations. In order to factorize a set of data that is provisioned for a set of ACs, a set of profiled can be defined at the network level, and then called under the node level. The information contained in the profile are thus inherited, unless the corresponding data node is refined at the AC level. In such as case, the value provided at the AC level takes precedence over the global one.
 
