@@ -144,6 +144,7 @@ The  Layer 2 connection tree structure is shown in {{l2-tree}}.
 ## IP Connection
 
 The  Layer 3 connection tree structure is shown in {{l3-tree}}.
+
 ~~~~
 {::include ./yang/l3-tree.txt}
 ~~~~
