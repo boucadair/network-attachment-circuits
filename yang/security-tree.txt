@@ -20,6 +20,7 @@
           +--rw encryption-profile
              +--rw (profile)?
                 +--:(provider-profile)
-                |  +--rw profile-name?         ac-svc:encryption-profile-reference
+                |  +--rw profile-name?         leafref
                 +--:(customer-profile)
-                   +--rw customer-key-chain?   key-chain:key-chain-ref
+                   +--rw customer-key-chain?
+                           key-chain:key-chain-ref

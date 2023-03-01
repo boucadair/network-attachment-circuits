@@ -19,7 +19,8 @@ module: ietf-ac-ntw
        |     |  +--rw prepend-global-as?        boolean
        |     |  +--rw send-default-route?       boolean
        |     |  +--rw site-of-origin?           rt-types:route-origin
-       |     |  +--rw ipv6-site-of-origin?      rt-types:ipv6-route-origin
+       |     |  +--rw ipv6-site-of-origin?
+       |     |  |       rt-types:ipv6-route-origin
        |     |  +--rw redistribute-connected* [address-family]
        |     |  |  +--rw address-family    identityref
        |     |  |  +--rw enable?           boolean
@@ -38,7 +39,7 @@ module: ietf-ac-ntw
        |     |  +--rw max-lsa?          uint32
        |     +--rw isis
        |     |  +--rw address-family?   identityref
-       |     |  +--rw area-address      ac-svc:area-address
+       |     |  +--rw area-address      area-address
        |     |  +--rw level?            identityref
        |     |  +--rw metric?           uint16
        |     |  +--rw mode?             enumeration
@@ -71,16 +72,17 @@ module: ietf-ac-ntw
        |     +--rw id                  string
        |     +--rw type?               identityref
        |     +--rw routing-profiles* [id]
-       |     |  +--rw id      ac-svc:routing-profile-reference
+       |     |  +--rw id      leafref
        |     |  +--rw type?   identityref
        |     +--rw static
        |     |  +--rw cascaded-lan-prefixes
-       |     |     +--rw ipv4-lan-prefixes* [lan next-hop] {vpn-common:ipv4}?
+       |     |     +--rw ipv4-lan-prefixes* [lan next-hop]
+       |     |     |       {vpn-common:ipv4}?
        |     |     |  +--rw lan           inet:ipv4-prefix
        |     |     |  +--rw lan-tag?      string
        |     |     |  +--rw next-hop      union
-       |     |     |  +--rw bfd-enable?   boolean {vpn-common:bfd}?
        |     |     |  +--rw metric?       uint32
+       |     |     |  +--rw bfd-enable?   boolean {vpn-common:bfd}?
        |     |     |  +--rw preference?   uint32
        |     |     |  +--rw status
        |     |     |     +--rw admin-status
@@ -89,12 +91,13 @@ module: ietf-ac-ntw
        |     |     |     +--ro oper-status
        |     |     |        +--ro status?        identityref
        |     |     |        +--ro last-change?   yang:date-and-time
-       |     |     +--rw ipv6-lan-prefixes* [lan next-hop] {vpn-common:ipv6}?
-       |     |        +--rw lan           inet:ipv6-prefix
+       |     |     +--rw ipv6-lan-prefixes* [lan next-hop]
+       |     |             {vpn-common:ipv6}?
+       |     |        +--rw lan           inet:ipv4-prefix
        |     |        +--rw lan-tag?      string
        |     |        +--rw next-hop      union
-       |     |        +--rw bfd-enable?   boolean {vpn-common:bfd}?
        |     |        +--rw metric?       uint32
+       |     |        +--rw bfd-enable?   boolean {vpn-common:bfd}?
        |     |        +--rw preference?   uint32
        |     |        +--rw status
        |     |           +--rw admin-status
@@ -117,8 +120,10 @@ module: ietf-ac-ntw
        |     |  |     +--rw allow-own-as?             uint8
        |     |  |     +--rw prepend-global-as?        boolean
        |     |  |     +--rw send-default-route?       boolean
-       |     |  |     +--rw site-of-origin?           rt-types:route-origin
-       |     |  |     +--rw ipv6-site-of-origin?      rt-types:ipv6-route-origin
+       |     |  |     +--rw site-of-origin?
+       |     |  |     |       rt-types:route-origin
+       |     |  |     +--rw ipv6-site-of-origin?
+       |     |  |     |       rt-types:ipv6-route-origin
        |     |  |     +--rw redistribute-connected* [address-family]
        |     |  |     |  +--rw address-family    identityref
        |     |  |     |  +--rw enable?           boolean
@@ -136,19 +141,21 @@ module: ietf-ac-ntw
        |     |  |           +--rw (option)?
        |     |  |              +--:(ao)
        |     |  |              |  +--rw enable-ao?          boolean
-       |     |  |              |  +--rw ao-keychain?        key-chain:key-chain-ref
+       |     |  |              |  +--rw ao-keychain?
+       |     |  |              |          key-chain:key-chain-ref
        |     |  |              +--:(md5)
-       |     |  |              |  +--rw md5-keychain?       key-chain:key-chain-ref
+       |     |  |              |  +--rw md5-keychain?
+       |     |  |              |          key-chain:key-chain-ref
        |     |  |              +--:(explicit)
-       |     |  |              |  +--rw key-id?             uint32
-       |     |  |              |  +--rw key?                string
-       |     |  |              |  +--rw crypto-algorithm?   identityref
-       |     |  |              +--:(ipsec)
-       |     |  |                 +--rw sa?                 string
+       |     |  |                 +--rw key-id?             uint32
+       |     |  |                 +--rw key?                string
+       |     |  |                 +--rw crypto-algorithm?
+       |     |  |                         identityref
        |     |  +--rw neighbor* [remote-address]
        |     |     +--rw remote-address            inet:ip-address
        |     |     +--rw local-address?            union
-       |     |     +--rw peer-group?               -> ../../peer-groups/peer-group/name
+       |     |     +--rw peer-group?
+       |     |     |       -> ../../peer-groups/peer-group/name
        |     |     +--rw description?              string
        |     |     +--rw local-as?                 inet:as-number
        |     |     +--rw peer-as                   inet:as-number
@@ -158,8 +165,10 @@ module: ietf-ac-ntw
        |     |     +--rw allow-own-as?             uint8
        |     |     +--rw prepend-global-as?        boolean
        |     |     +--rw send-default-route?       boolean
-       |     |     +--rw site-of-origin?           rt-types:route-origin
-       |     |     +--rw ipv6-site-of-origin?      rt-types:ipv6-route-origin
+       |     |     +--rw site-of-origin?
+       |     |     |       rt-types:route-origin
+       |     |     +--rw ipv6-site-of-origin?
+       |     |     |       rt-types:ipv6-route-origin
        |     |     +--rw redistribute-connected* [address-family]
        |     |     |  +--rw address-family    identityref
        |     |     |  +--rw enable?           boolean
@@ -177,15 +186,15 @@ module: ietf-ac-ntw
        |     |     |     +--rw (option)?
        |     |     |        +--:(ao)
        |     |     |        |  +--rw enable-ao?          boolean
-       |     |     |        |  +--rw ao-keychain?        key-chain:key-chain-ref
+       |     |     |        |  +--rw ao-keychain?
+       |     |     |        |          key-chain:key-chain-ref
        |     |     |        +--:(md5)
-       |     |     |        |  +--rw md5-keychain?       key-chain:key-chain-ref
+       |     |     |        |  +--rw md5-keychain?
+       |     |     |        |          key-chain:key-chain-ref
        |     |     |        +--:(explicit)
-       |     |     |        |  +--rw key-id?             uint32
-       |     |     |        |  +--rw key?                string
-       |     |     |        |  +--rw crypto-algorithm?   identityref
-       |     |     |        +--:(ipsec)
-       |     |     |           +--rw sa?                 string
+       |     |     |           +--rw key-id?             uint32
+       |     |     |           +--rw key?                string
+       |     |     |           +--rw crypto-algorithm?   identityref
        |     |     +--rw status
        |     |        +--rw admin-status
        |     |        |  +--rw status?        identityref
@@ -207,13 +216,12 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?
+       |     |  |        |          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
-       |     |  |        |  +--rw key-id?             uint32
-       |     |  |        |  +--rw key?                string
-       |     |  |        |  +--rw crypto-algorithm?   identityref
-       |     |  |        +--:(ipsec)
-       |     |  |           +--rw sa?                 string
+       |     |  |           +--rw key-id?             uint32
+       |     |  |           +--rw key?                string
+       |     |  |           +--rw crypto-algorithm?   identityref
        |     |  +--rw status
        |     |     +--rw admin-status
        |     |     |  +--rw status?        identityref
@@ -223,7 +231,7 @@ module: ietf-ac-ntw
        |     |        +--ro last-change?   yang:date-and-time
        |     +--rw isis
        |     |  +--rw address-family?   identityref
-       |     |  +--rw area-address      ac-svc:area-address
+       |     |  +--rw area-address      area-address
        |     |  +--rw level?            identityref
        |     |  +--rw metric?           uint16
        |     |  +--rw mode?             enumeration
@@ -232,7 +240,8 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?
+       |     |  |        |          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
        |     |  |           +--rw key-id?             uint32
        |     |  |           +--rw key?                string
@@ -257,7 +266,8 @@ module: ietf-ac-ntw
        |     |  |  +--rw keying-material
        |     |  |     +--rw (option)?
        |     |  |        +--:(auth-key-chain)
-       |     |  |        |  +--rw key-chain?          key-chain:key-chain-ref
+       |     |  |        |  +--rw key-chain?
+       |     |  |        |          key-chain:key-chain-ref
        |     |  |        +--:(auth-key-explicit)
        |     |  |           +--rw key?                string
        |     |  |           +--rw crypto-algorithm?   identityref

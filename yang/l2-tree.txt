@@ -10,7 +10,7 @@
        |  |  +--rw encap-type?        identityref
        |  |  +--rw dot1q
        |  |  |  +--rw tag-type?         identityref
-       |  |  |  +--rw cvlan-id?         dot1q-types:vlanid
+       |  |  |  +--rw cvlan-id?         uint16
        |  |  |  +--rw tag-operations
        |  |  |     +--rw (op-choice)?
        |  |  |     |  +--:(pop)
@@ -20,15 +20,17 @@
        |  |  |     |  +--:(translate)
        |  |  |     |     +--rw translate?   empty
        |  |  |     +--rw tag-1?             dot1q-types:vlanid
-       |  |  |     +--rw tag-1-type?        dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-1-type?
+       |  |  |     |       dot1q-types:dot1q-tag-type
        |  |  |     +--rw tag-2?             dot1q-types:vlanid
-       |  |  |     +--rw tag-2-type?        dot1q-types:dot1q-tag-type
+       |  |  |     +--rw tag-2-type?
+       |  |  |             dot1q-types:dot1q-tag-type
        |  |  +--rw priority-tagged
        |  |  |  +--rw tag-type?   identityref
        |  |  +--rw qinq
        |  |     +--rw tag-type?         identityref
-       |  |     +--rw svlan-id          dot1q-types:vlanid
-       |  |     +--rw cvlan-id          dot1q-types:vlanid
+       |  |     +--rw svlan-id          uint16
+       |  |     +--rw cvlan-id          uint16
        |  |     +--rw tag-operations
        |  |        +--rw (op-choice)?
        |  |        |  +--:(pop)
@@ -38,9 +40,11 @@
        |  |        |  +--:(translate)
        |  |        |     +--rw translate?   uint8
        |  |        +--rw tag-1?             dot1q-types:vlanid
-       |  |        +--rw tag-1-type?        dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-1-type?
+       |  |        |       dot1q-types:dot1q-tag-type
        |  |        +--rw tag-2?             dot1q-types:vlanid
-       |  |        +--rw tag-2-type?        dot1q-types:dot1q-tag-type
+       |  |        +--rw tag-2-type?
+       |  |                dot1q-types:dot1q-tag-type
        |  +--rw (l2-service)?
        |  |  +--:(l2-tunnel-service)
        |  |  |  +--rw l2-tunnel-service
@@ -59,7 +63,8 @@
        |  |     +--rw l2vpn-id?            vpn-common:vpn-id
        |  +--rw l2-termination-point?      string
        |  +--rw local-bridge-reference?    string
-       |  +--rw bearer-reference?          string {vpn-common:bearer-reference}?
+       |  +--rw bearer-reference?          string
+       |  |       {vpn-common:bearer-reference}?
        |  +--rw lag-interface {vpn-common:lag-interface}?
        |     +--rw lag-interface-id?   string
        |     +--rw member-link-list
