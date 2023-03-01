@@ -50,9 +50,9 @@ informative:
 
 --- abstract
 
-This document specifies a network model for attachment circuits. The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service). The companion service model is specified in {{!I-D.boro-opsawg-teas-attachment-circuit}}.
+This document specifies a network model for attachment circuits. The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service). A companion service model is specified in {{!I-D.boro-opsawg-teas-attachment-circuit}}.
 
-The module augments the SAP model with the detailed information for the provisioning of attachment circuits in Provider Edges (PEs).
+The module augments the Service Attachment Point (SAP) model with the detailed information for the provisioning of attachment circuits in Provider Edges (PEs).
 
 --- middle
 
@@ -60,11 +60,11 @@ The module augments the SAP model with the detailed information for the provisio
 
 The procedure to provision a service in a service provider network may depend on the practices adopted by a service provider, including the flow put in place for the provisioning of advanced network services and how they are bound to an attachment circuit. For example, the same attachment circuit may be used to host multiple services. In order to avoid service interference and redundant information in various locations, a service provider may expose an interface to manage ACs network-wide. Customers can then request a base attachment circuit to be put in place, and then refer to that base AC when requesting services that are bound to that AC. {{!I-D.boro-opsawg-teas-attachment-circuit}} specifies a data model for managing ACs as a service.
 
-This document specifies a network model for attachment circuits. The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service).
+This document specifies a network model for attachment circuits ("ietf-ac-ntw"). The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service).
 
 The document leverages {{!RFC9182}} and {{!RFC9291}} by adopting an AC provisioning structure that uses data nodes that are defined in these RFCs. Some refinements were introduced to cover, not only conventional service provider networks, but also specifics of other target deployments (cloud, for example).
 
-The AC network model is designed as an augmnetation to the Service Attachment Points (SAPs) model {{!I-D.ietf-opsawg-sap}}. An AC can be bound to a single or multiple SAPs. Likewise, the model is designed to accomdate deployments where a SAP can be bound to one or multiple ACs.
+The AC network model is designed as an augmnetation to the Service Attachment Point (SAP) model {{!I-D.ietf-opsawg-sap}}. An AC can be bound to a single or multiple SAPs. Likewise, the model is designed to accomdate deployments where a SAP can be bound to one or multiple ACs.
 
  The YANG data models in this document conform to the Network Management Datastore Architecture (NMDA) defined in {{!RFC8342}}.
 
@@ -81,6 +81,11 @@ The meanings of the symbols in the YANG tree diagrams are defined in {{?RFC8340}
 
 This document uses the following terms:
 
+Bearer:
+: A physical or logical link that connects a customer node (or site) to a provider network. A bearer can be a wireless or wired link. One or multiple technologies can be used to build a bearer. The bearer type can be specified by a customer.
+: The operator allocates a unique bearer reference to identify a bearer within its network (e.g., customer line identifier). Such a reference can be retrieved by a customer and used in subsequent service placement requests to unambiguously identify where a service is to be bound.
+: The concept of bearer can be generalized to refer to the required underlying connection for the provisioning of an attachment circuit. One or multiple attachment circuits may be hosted over the same bearer (e.g., multiple VLANs on the same bearer that is provided by a physical link).
+
 Network controller:
 : Denotes a functional entity responsible for the management of the service provider network.
 
@@ -93,6 +98,8 @@ Service provider network:
 Service provider:
 : A service provider that offers network services (e.g., Network Slice Services).
 
+ Customer Terminating Point (CTP):
+ : Refers to a customer-owned endpoint that terminates an attachment circuit. Such an endpoint can be a Customer Edge (CE), a Network Function (NF), a peer ASBR, etc.
 
 # Sample Uses of the Attachment Circuit Data Models
 
@@ -130,7 +137,14 @@ Service provider:
             +----+----+   |                   |
                  |        |                   |
                  | NETCONF/CLI..................
+                 | NETCONF/CLI..................
                  |        |                   |
+               +--------------------------------+
+ +----+ Bearer |                                | Bearer +----+
+ |CTP +--------+            Network             +--------+ CTP|
+ +----+        |                                |        +----+
+               +--------------------------------+
+  Site A                                                  Site B
 ~~~~
 {: #u-ex title="An Example of the Network AC Model Usage" artwork-align="center"}
 
@@ -279,7 +293,7 @@ This module uses types defined in {{!RFC6991}}, {{!RFC8177}}, {{!RFC8294}}, {{!R
    Name:  ietf-ac-ntw
    Maintained by IANA?  N
    Namespace:  urn:ietf:params:xml:ns:yang:ietf-ac-ntw
-   Prefix:  ac
+   Prefix:  ac-ntw
    Reference:  RFC xxxx
 ~~~~
 
