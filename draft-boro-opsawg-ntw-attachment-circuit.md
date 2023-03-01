@@ -66,7 +66,40 @@ The document leverages {{!RFC9182}} and {{!RFC9291}} by adopting an AC provision
 
 The AC network model is designed as an augmnetation to the Service Attachment Point (SAP) model {{!I-D.ietf-opsawg-sap}}. An AC can be bound to a single or multiple SAPs. Likewise, the model is designed to accomdate deployments where a SAP can be bound to one or multiple ACs.
 
- The YANG data models in this document conform to the Network Management Datastore Architecture (NMDA) defined in {{!RFC8342}}.
+~~~~
+                    .---.
+                    |CE6|
+                    '-+-'
+                   ac |        .---.        .---.        .---.
+                    .-+-.      |CE5+--------+   +--------+CE2|
+               .----+   +---.  '---'        '-+-'       '---'
+               |    '-+-'   |                 |ac
+               |            |                 |
+             .-+-.       .-+-.              .-+-.
+           .-+sap+-------+sap+-.          .-+sap+-------------.
+           | '---'       '---' |          | '---'             |
+.---.    .-+-.                 |          |                   |
+|CE1+----+sap|      PE1        |          |         PE2       |
+'---' ac '-+-'                 |          |                   |
+           '-------------------'          '-------------------'
+
+           .-------------------.          .-------------------.
+           |                   |          |                 .-+-. ac .---.
+           |         PE3       |          |        PE4      |sap+----+CE5|
+           |                   |          |                 '---'    '---'
+           |             .---. |          | .---. .---. .---. |
+           '-------------+sap+-'          '-+sap+-+sap+-+sap+-'
+                         '-+-'              '-+-' '-+-' '-+-'
+                           |ac                |     |ac   |ac
+                         .-+-.                |   .-+-.   |
+                         |CE3+--------ac------'   |CE4+---'
+                         '---'                    '---'
+~~~~
+{: #sap-ac-ntw title="Attachment Circuits Examples" artwork-align="center"}
+
+The AC network model uses the AC common model defined in {{!I-D.boro-opsawg-teas-attachment-circuit}}.
+
+ The YANG data model in this document conforms to the Network Management Datastore Architecture (NMDA) defined in {{!RFC8342}}.
 
 
 # Conventions and Definitions
