@@ -1,0 +1,844 @@
+module ietf-ac-svc {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:ietf-ac-svc";
+  prefix ac-svc;
+
+  import ietf-ac-common {
+    prefix ac-common;
+    reference
+      "RFC CCCC: A Common YANG Data Model for Attachment Circuits";
+  }
+  import ietf-vpn-common {
+    prefix vpn-common;
+    reference
+      "RFC 9181: A Common YANG Data Model for Layer 2 and Layer 3
+                 VPNs";
+  }
+  import ietf-inet-types {
+    prefix inet;
+    reference
+      "RFC 6991: Common YANG Data Types, Section 4";
+  }
+  import ietf-key-chain {
+    prefix key-chain;
+    reference
+      "RFC 8177: YANG Data Model for Key Chains";
+  }
+
+  organization
+    "IETF OPSAWG (Operations and Management Area Working Group)";
+  contact
+    "WG Web:   <https://datatracker.ietf.org/wg/opsawg/>
+     WG List:  <mailto:opsawg@ietf.org>
+
+     Editor:   Mohamed Boucadair
+               <mailto:mohamed.boucadair@orange.com>
+     Author:   Richard Roberts
+               <mailto:rroberts@juniper.net>
+     Author:   Oscar Gonzalez de Dios
+               <mailto:oscar.gonzalezdedios@telefonica.com>
+     Author:   Samier Barguil
+               <mailto:ssamier.barguil_giraldo@nokia.com>
+     Author:   Bo Wu
+               <mailto:lana.wubo@huawei.com>";
+  description
+    "This YANG module defines a YANG model for exposing
+     attachment circuits (ACs) as a service.
+
+     Copyright (c) 2023 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the Revised BSD License
+     set forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (https://trustee.ietf.org/license-info).
+
+     This version of this YANG module is part of RFC XXXX; see the
+     RFC itself for full legal notices.";
+
+  revision 2022-11-30 {
+    description
+      "Initial revision.";
+    reference
+      "RFC XXXX: YANG Service Data Models for Attachment Circuits";
+  }
+
+  /* A set of typedefs to ease referencing cross-modules */
+
+  typedef attachment-circuit-reference {
+    type leafref {
+      path "/ac-svc:attachment-circuits/ac-svc:ac/ac-svc:name";
+    }
+    description
+      "Defines a reference to an attachment circuit that can be used
+       by other modules.";
+  }
+
+  /*typedef ac-global-profile-reference {
+    type leafref {
+      path "/ac-svc:attachment-circuits/ac-global-profile/id";
+    }
+    description
+      "Defines a reference to a gloabl attachment circuit that can be used
+       by other modules.";
+  }*/
+
+  typedef ac-group-reference {
+    type leafref {
+      path "/ac-svc:attachment-circuits/ac-group-profile/name";
+    }
+    description
+      "Defines a reference to an attachment circuit profile.";
+  }
+
+  typedef encryption-profile-reference {
+    type leafref {
+      path "/ac-svc:specific-provisioning-profiles/valid-provider-identifiers"
+         + "/encryption-profile-identifier/id";
+    }
+    description
+      "Defines a type to an encryption profile for referencing
+       purposes.";
+  }
+
+  typedef qos-profile-reference {
+    type leafref {
+      path "/ac-svc:specific-provisioning-profiles/valid-provider-identifiers"
+         + "/qos-profile-identifier/ac-svc:id";
+    }
+    description
+      "Defines a type to a QoS profile for referencing purposes.";
+  }
+
+  typedef bfd-profile-reference {
+    type leafref {
+      path "/ac-svc:specific-provisioning-profiles/valid-provider-identifiers"
+         + "/bfd-profile-identifier/ac-svc:id";
+    }
+    description
+      "Defines a type to a BFD profile for referencing purposes.";
+  }
+
+  typedef forwarding-profile-reference {
+    type leafref {
+      path "/ac-svc:specific-provisioning-profiles/valid-provider-identifiers"
+         + "/forwarding-profile-identifier/ac-svc:id";
+    }
+    description
+      "Defines a type to a forwarding profile for referencing purposes.";
+  }
+
+  typedef routing-profile-reference {
+    type leafref {
+      path "/ac-svc:specific-provisioning-profiles/valid-provider-identifiers"
+         + "/routing-profile-identifier/id";
+    }
+    description
+      "Defines a type to a routing profile for referencing purposes.";
+  }
+
+  /******************** Reusable groupings ********************/
+
+  // Basic Layer 2 connection
+
+  grouping l2-connection-basic {
+    description
+      "Defines Layer 2 protocols and parameters that can be factorized
+       when provisioning Layer 2 connectivity among multiple ACs.";
+    container encapsulation {
+      description
+        "Container for Layer 2 encapsulation.";
+      leaf type {
+        type identityref {
+          base vpn-common:encapsulation-type;
+        }
+        description
+          "Encapsulation type.";
+      }
+      container dot1q {
+        when "derived-from-or-self(../type, 'vpn-common:dot1q')" {
+          description
+            "Only applies when the type of the tagged interface 
+             is 'dot1q'.";
+        }
+        description
+          "Tagged interface.";
+        uses ac-common:dot1q;
+      }
+      container qinq {
+        when "derived-from-or-self(../type, 'vpn-common:qinq')" {
+          description
+            "Only applies when the type of the tagged interface
+             is 'qinq'.";
+        }
+        description
+          "Includes QinQ parameters.";
+        uses ac-common:qinq;
+      }
+    }
+  }
+
+  // Full Layer 2 connection
+
+  grouping l2-connection {
+    description
+      "Defines Layer 2 protocols and parameters that are used to enable
+       AC connectivity.";
+    container encapsulation {
+      description
+        "Container for Layer 2 encapsulation.";
+      leaf type {
+        type identityref {
+          base vpn-common:encapsulation-type;
+        }
+        description
+          "Encapsulation type.";
+      }
+      container dot1q {
+        when "derived-from-or-self(../type, 'vpn-common:dot1q')" {
+          description
+            "Only applies when the type of the tagged interface
+             is 'dot1q'.";
+        }
+        description
+          "Tagged interface.";
+        uses ac-common:dot1q;
+      }
+      container priority-tagged {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:priority-tagged')" {
+          description
+            "Only applies when the type of the tagged interface is
+             'priority-tagged'.";
+        }
+        description
+          "Priority-tagged interface.";
+        uses ac-common:priority-tagged;
+      }
+      container qinq {
+        when "derived-from-or-self(../type, 'vpn-common:qinq')" {
+          description
+            "Only applies when the type of the tagged interface
+             is 'qinq'.";
+        }
+        description
+          "Includes QinQ parameters.";
+        uses ac-common:qinq;
+      }
+    }
+    choice l2-service {
+      description
+        "The Layer 2 connectivity service can be provided by indicating
+         a pointer to an L2VPN or by specifying a Layer 2 tunnel 
+         service.";
+      container l2-tunnel-service {
+        description
+          "Defines a Layer 2 tunnel termination.
+           It is only applicable when a tunnel is required.";
+        uses ac-common:l2-tunnel-service;
+      }
+      case l2vpn {
+        leaf l2vpn-id {
+          type vpn-common:vpn-id;
+          description
+            "Indicates the L2VPN service associated with an Integrated
+             Routing and Bridging (IRB) interface.";
+        }
+      }
+    }
+    leaf bearer-reference {
+      if-feature "vpn-common:bearer-reference";
+      type string;
+      description
+        "This is an internal reference for the service provider
+         to identify the bearer associated with this AC.";
+    }
+  }
+
+  // Basic IP connection
+
+  grouping ip-connection-basic {
+    description
+      "Defines basic IP connection parameters.";
+    container ipv4 {
+      if-feature "vpn-common:ipv4";
+      description
+        "IPv4-specific parameters.";
+      uses ac-common:ipv4-connection-basic;
+    }
+    container ipv6 {
+      if-feature "vpn-common:ipv6";
+      description
+        "IPv6-specific parameters.";
+      uses ac-common:ipv6-connection-basic;
+    }
+  }
+
+  // Full IP connection
+
+  grouping ip-connection {
+    description
+      "Defines IP connection parameters.";
+    container ipv4 {
+      if-feature "vpn-common:ipv4";
+      description
+        "IPv4-specific parameters.";
+      uses ac-common:ipv4-connection;
+    }
+    container ipv6 {
+      if-feature "vpn-common:ipv6";
+      description
+        "IPv6-specific parameters.";
+      uses ac-common:ipv6-connection;
+    }
+  }
+
+  // Routing protocol list
+
+  grouping routing-protocol-list {
+    description
+      "List of routing protocols used on the AC.";
+    leaf type {
+      type identityref {
+        base vpn-common:routing-protocol-type;
+      }
+      description
+        "Type of routing protocol.";
+    }
+    list routing-profiles {
+      key "id";
+      description
+        "Routing profiles.";
+      leaf id {
+        type routing-profile-reference;
+        description
+          "Reference to the routing profile to be used.";
+      }
+      leaf type {
+        type identityref {
+          base vpn-common:ie-type;
+        }
+        description
+          "Import, export, or both.";
+      }
+    }
+  }
+
+  // Basic routing parameters
+
+  grouping routing-basic {
+    description
+      "Defines basic parameters for routing protocols.";
+    list routing-protocol {
+      key "id";
+      description
+        "List of routing protocols used on the AC.";
+      leaf id {
+        type string;
+        description
+          "Unique identifier for the routing protocol.";
+      }
+      uses routing-protocol-list;
+      container bgp {
+        when "derived-from-or-self(../type, 'vpn-common:bgp-routing')" {
+          description
+            "Only applies when the protocol is BGP.";
+        }
+        description
+          "Configuration specific to BGP.";
+        container peer-groups {
+          description
+            "Configuration for BGP peer-groups";
+          list peer-group {
+            key "name";
+            description
+              "List of BGP peer-groups configured on the local system -
+               uniquely identified by peer-group name";
+            uses ac-common:bgp-peer-group-with-name;
+          }
+        }
+      }
+      container ospf {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:ospf-routing')" {
+          description
+            "Only applies when the protocol is OSPF.";
+        }
+        description
+          "Configuration specific to OSPF.";
+        uses ac-common:ospf-basic;
+      }
+      container isis {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:isis-routing')" {
+          description
+            "Only applies when the protocol is IS-IS.";
+        }
+        description
+          "Configuration specific to IS-IS.";
+        uses ac-common:isis-basic;
+      }
+      container rip {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:rip-routing')" {
+          description
+            "Only applies when the protocol is RIP.
+             For IPv4, the model assumes that RIP
+             version 2 is used.";
+        }
+        description
+          "Configuration specific to RIP routing.";
+        leaf address-family {
+          type identityref {
+            base vpn-common:address-family;
+          }
+          description
+            "Indicates whether IPv4, IPv6, or both
+             address families are to be activated.";
+        }
+      }
+      container vrrp {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:vrrp-routing')" {
+          description
+            "Only applies when the protocol is the
+             Virtual Router Redundancy Protocol (VRRP).";
+        }
+        description
+          "Configuration specific to VRRP.";
+        reference
+          "RFC 5798: Virtual Router Redundancy Protocol (VRRP)
+                     Version 3 for IPv4 and IPv6";
+        leaf address-family {
+          type identityref {
+            base vpn-common:address-family;
+          }
+          description
+            "Indicates whether IPv4, IPv6, or both address families 
+             are to be enabled.";
+        }
+      }
+    }
+  }
+
+  // Full routing parameters
+
+  grouping routing {
+    description
+      "Defines routing protocols.";
+    list routing-protocol {
+      key "id";
+      description
+        "List of routing protocols used on the AC.";
+      leaf id {
+        type string;
+        description
+          "Unique identifier for the routing protocol.";
+      }
+      uses routing-protocol-list;
+      container static {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:static-routing')" {
+          description
+            "Only applies when the protocol is static routing 
+             protocol.";
+        }
+        description
+          "Configuration specific to static routing.";
+        container cascaded-lan-prefixes {
+          description
+            "LAN prefixes from the customer.";
+          uses ac-common:ipv4-static-rtg;
+          uses ac-common:ipv6-static-rtg;
+        }
+      }
+      container bgp {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:bgp-routing')" {
+          description
+            "Only applies when the protocol is BGP.";
+        }
+        description
+          "Configuration specific to BGP.";
+        container peer-groups {
+          description
+            "Configuration for BGP peer-groups";
+          list peer-group {
+            key "name";
+            description
+              "List of BGP peer-groups configured on the local system -
+               uniquely identified by peer-group name";
+            uses ac-common:bgp-peer-group-with-name;
+            leaf local-address {
+              type inet:ip-address;
+              config false;
+              description
+                "The local IP address that will be used to establish
+                 the BGP session.";
+            }
+            uses ac-common:bgp-authentication;
+          }
+        }
+        list neighbor {
+          key "id";
+          description
+            "List of BGP neighbors.";
+          leaf id {
+            type string;
+            description
+              "A neighbor identifier.";
+          }
+          leaf remote-address {
+            type inet:ip-address;
+            description
+              "The remote IP address of this entry's BGP peer.
+
+               If this leaf is not present, this means that the primary
+               customer IP address is used as remote IP address.";
+          }
+          leaf local-address {
+            type inet:ip-address;
+            config false;
+            description
+              "The local IP address that will be used to establish
+               the BGP session.";
+          }
+          leaf peer-group {
+            type leafref {
+              path "../../peer-groups/peer-group/name";
+            }
+            description
+              "The peer-group with which this neighbor is associated.";
+          }
+          uses ac-common:bgp-peer-group-without-name;
+          uses ac-common:bgp-authentication;
+          uses vpn-common:service-status;
+        }
+      }
+      container ospf {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:ospf-routing')" {
+          description
+            "Only applies when the protocol is OSPF.";
+        }
+        description
+          "Configuration specific to OSPF.";
+        uses ac-common:ospf-basic;
+        uses ac-common:ospf-authentication;
+        uses vpn-common:service-status;
+      }
+      container isis {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:isis-routing')" {
+          description
+            "Only applies when the protocol is IS-IS.";
+        }
+        description
+          "Configuration specific to IS-IS.";
+        uses ac-common:isis-basic;
+        uses ac-common:isis-authentication;
+        uses vpn-common:service-status;
+      }
+      container rip {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:rip-routing')" {
+          description
+            "Only applies when the protocol is RIP.
+             For IPv4, the model assumes that RIP version 2 is used.";
+        }
+        description
+          "Configuration specific to RIP routing.";
+        leaf address-family {
+          type identityref {
+            base vpn-common:address-family;
+          }
+          description
+            "Indicates whether IPv4, IPv6, or both address families
+             are to be activated.";
+        }
+        uses ac-common:rip-authentication;
+        uses vpn-common:service-status;
+      }
+      container vrrp {
+        when "derived-from-or-self(../type, "
+           + "'vpn-common:vrrp-routing')" {
+          description
+            "Only applies when the protocol is the Virtual Router
+             Redundancy Protocol (VRRP).";
+        }
+        description
+          "Configuration specific to VRRP.";
+        reference
+          "RFC 5798: Virtual Router Redundancy Protocol (VRRP)
+                     Version 3 for IPv4 and IPv6";
+        leaf address-family {
+          type identityref {
+            base vpn-common:address-family;
+          }
+          description
+            "Indicates whether IPv4, IPv6, or both
+             address families are to be enabled.";
+        }
+        uses vpn-common:service-status;
+      }
+    }
+  }
+
+  // Encryption choice
+
+  grouping encryption-choice {
+    description
+      "Container for the encryption profile.";
+    choice profile {
+      description
+        "Choice for the encryption profile.";
+      case provider-profile {
+        leaf provider-profile {
+          type encryption-profile-reference;
+          description
+            "Reference to a provider encryption profile.";
+        }
+      }
+      case customer-profile {
+        leaf customer-key-chain {
+          type key-chain:key-chain-ref;
+          description
+            "Customer-supplied key chain.";
+        }
+      }
+    }
+  }
+
+  // Basic security parameters
+
+  grouping ac-security-basic {
+    description
+      "AC-specific security parameters.";
+    container encryption {
+      if-feature "vpn-common:encryption";
+      description
+        "Container for AC security encryption.";
+      leaf enabled {
+        type boolean;
+        description
+          "If set to 'true', traffic encryption on the connection
+           is required.  Otherwise, it is disabled.";
+      }
+      leaf layer {
+        when "../enabled = 'true'" {
+          description
+            "Included only when encryption is enabled.";
+        }
+        type enumeration {
+          enum layer2 {
+            description
+              "Encryption occurs at Layer 2.";
+          }
+          enum layer3 {
+            description
+              "Encryption occurs at Layer 3.
+               For example, IPsec may be used when a customer requests
+               Layer 3 encryption.";
+          }
+        }
+        description
+          "Indicates the layer on which encryption is applied.";
+      }
+    }
+    container encryption-profile {
+      when "../encryption/enabled = 'true'" {
+        description
+          "Indicates the layer on which encryption is enabled.";
+      }
+      description
+        "Container for the encryption profile.";
+      uses encryption-choice;
+    }
+  }
+
+  // Basic AC parameter
+
+  grouping ac-basic {
+    description
+      "Grouping for basic parameters for an attachment circuit.";
+    leaf id {
+      type string;
+      description
+        "An identifier of the AC.";
+    }
+    container l2-connection {
+      description
+        "Defines Layer 2 protocols and parameters that are required to
+         enable AC connectivity.";
+      uses l2-connection-basic;
+    }
+    container ip-connection {
+      description
+        "Defines IP connection parameters.";
+      uses ip-connection-basic;
+    }
+    container routing-protocols {
+      description
+        "Defines routing protocols.";
+      uses routing-basic;
+    }
+    container oam {
+      description
+        "Defines the Operations, Administration, and Maintenance (OAM)
+         mechanisms used.";
+      container bfd {
+        if-feature "vpn-common:bfd";
+        description
+          "Container for BFD.";
+        uses ac-common:bfd;
+      }
+    }
+    container security {
+      description
+        "AC-specific security parameters.";
+      uses ac-security-basic;
+    }
+  }
+
+  // Full AC parameters
+
+  grouping ac {
+    description
+      "Grouping for an attachment circuit.";
+    leaf name {
+      type string;
+      description
+        "A name of the AC. Data models that need to reference an attachment
+         circuits should use attachment-circuit-reference.";
+    }
+    container l2-connection {
+      description
+        "Defines Layer 2 protocols and parameters that are required to
+         enable AC connectivity.";
+      uses l2-connection;
+    }
+    container ip-connection {
+      description
+        "Defines IP connection parameters.";
+      uses ip-connection;
+    }
+    container routing-protocols {
+      description
+        "Defines routing protocols.";
+      uses routing;
+    }
+    container oam {
+      description
+        "Defines the OAM mechanisms used.";
+      container bfd {
+        if-feature "vpn-common:bfd";
+        description
+          "Container for BFD.";
+        uses ac-common:bfd;
+        uses vpn-common:service-status;
+      }
+    }
+    container security {
+      description
+        "AC-specific security parameters.";
+      uses ac-security-basic;
+    }
+  }
+
+  /******************** Main AC containers ********************/
+
+  container specific-provisioning-profiles {
+    description
+      "Contains a set of valid profiles to reference for an AC.";
+    uses vpn-common:vpn-profile-cfg;
+  }
+  container service-provisioning-profiles {
+    description
+      "Contains a set of valid profiles to reference for an AC.";
+    list service-profile-identifier {
+      key "id";
+      description
+        "List of generic service profile identifiers.";
+      leaf id {
+        type string;
+        description
+          "Identification of the service profile to be used. 
+           The profile only has significance within the service
+           provider's administrative domain.";
+      }
+    }
+  }
+  container attachment-circuits {
+    description
+      "Main container for the attachment circuits.";
+    /*list ac-global-profile {
+      key "id";
+      description
+        "Maintains a list of AC profiles.";
+      uses ac-basic;
+    }*/
+    list ac-group-profile {
+      key "name";
+      description
+        "Maintains a list of per-node AC profiles.";
+      uses ac;
+    }
+    container placement-constraints {
+      description
+        "Diversity constraint type.";
+      uses vpn-common:placement-constraints;
+    }
+    list ac {
+      key "name";
+      description
+        "Global provisioning of attachment circuits.";
+      leaf customer-name {
+        type string;
+        description
+          "Indicates the name of the customer that requested this AC.";
+      }
+      leaf description {
+        type string;
+        description
+          "Associates a description with an AC.";
+      }
+      uses ac-common:op-instructions;
+      leaf-list peer-sap-id {
+        type string;
+        description
+          "One or more peer SAPs can be indicated.";
+      }
+      /*leaf-list ac-global-profile {
+        type ac-global-profile-reference;
+        description
+          "A reference to an AC profile.";
+      }*/
+      leaf-list ac-group-profile {
+        type ac-group-reference;
+        description
+          "A reference to a per-node AC profile.";
+      }
+      list group {
+        key "group-id";
+        description
+          "List of group-ids.";
+        leaf group-id {
+          type string;
+          description
+            "Indicates the group-id to which the network access 
+             belongs.";
+        }
+        leaf precedence {
+          type identityref {
+            base ac-common:precedence-type;
+          }
+          description
+            "Defines redundancy of an AC.";
+        }
+      }
+      uses ac;
+    }
+  }
+}
