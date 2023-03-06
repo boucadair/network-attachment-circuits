@@ -50,12 +50,12 @@ module ietf-ac-ntw {
   import ietf-ac-common {
     prefix ac-common;
     reference
-      "RFC CCCC: XXXX";
+      "RFC CCCC: A Common YANG Data Model for Attachment Circuits";
   }
   import ietf-ac-svc {
     prefix ac-svc;
     reference
-      "RFC SSSS: XXXX";
+      "RFC SSSS: YANG Service Data Models for Attachment Circuits";
   }
 
   organization
