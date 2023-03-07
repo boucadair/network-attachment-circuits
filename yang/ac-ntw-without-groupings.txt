@@ -83,6 +83,17 @@ module: ietf-ac-ntw
        +--rw ac-ref?              ac-svc:attachment-circuit-reference
        +--rw ac-profile* [profile-id]
        |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+       +--rw peer-sap-id*         string
+       +--rw group* [group-id]
+       |  +--rw group-id      string
+       |  +--rw precedence?   identityref
+       +--rw status
+       |  +--rw admin-status
+       |  |  +--rw status?        identityref
+       |  |  +--rw last-change?   yang:date-and-time
+       |  +--ro oper-status
+       |     +--ro status?        identityref
+       |     +--ro last-change?   yang:date-and-time
        +--rw description?         string
        +--rw l2-connection
        |  +--rw encapsulation
@@ -167,9 +178,9 @@ module: ietf-ac-ntw
        |  |     |  |        +--rw address-pool* [pool-id]
        |  |     |  |           +--rw pool-id          string
        |  |     |  |           +--rw start-address
-       |  |     |  |           |       inet:ipv6-address
+       |  |     |  |           |       inet:ipv4-address
        |  |     |  |           +--rw end-address?
-       |  |     |  |                   inet:ipv6-address
+       |  |     |  |                   inet:ipv4-address
        |  |     |  +--rw (provider-dhcp)?
        |  |     |  |  +--:(dhcp-service-type)
        |  |     |  |  |  +--rw dhcp-service-type?
@@ -178,18 +189,16 @@ module: ietf-ac-ntw
        |  |     |  |     +--rw (service-type)?
        |  |     |  |        +--:(relay)
        |  |     |  |           +--rw server-ip-address*
-       |  |     |  |                   inet:ipv6-address
+       |  |     |  |                   inet:ipv4-address
        |  |     |  +--rw (dhcp-relay)?
        |  |     |     +--:(customer-dhcp-servers)
        |  |     |        +--rw customer-dhcp-servers
        |  |     |           +--rw server-ip-address*
-       |  |     |                   inet:ipv6-address
+       |  |     |                   inet:ipv4-address
        |  |     +--:(static-addresses)
-       |  |        +--rw primary-address?
-       |  |        |       -> ../address/address-id
        |  |        +--rw address* [address-id]
        |  |           +--rw address-id          string
-       |  |           +--rw customer-address?   inet:ipv6-address
+       |  |           +--rw customer-address?   inet:ipv4-address
        |  +--rw ipv6 {vpn-common:ipv6}?
        |     +--rw local-address?
        |     |       inet:ipv6-address
@@ -224,8 +233,6 @@ module: ietf-ac-ntw
        |        |           +--rw server-ip-address*
        |        |                   inet:ipv6-address
        |        +--:(static-addresses)
-       |           +--rw primary-address?
-       |           |       -> ../address/address-id
        |           +--rw address* [address-id]
        |              +--rw address-id          string
        |              +--rw customer-address?   inet:ipv6-address
