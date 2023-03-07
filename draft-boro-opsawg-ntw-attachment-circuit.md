@@ -58,7 +58,7 @@ The module augments the Service Attachment Point (SAP) model with the detailed i
 
 # Introduction
 
-The procedure to provision a service in a service provider network may depend on the practices adopted by a service provider, including the flow put in place for the provisioning of advanced network services and how they are bound to an attachment circuit. For example, the same attachment circuit may be used to host multiple services. In order to avoid service interference and redundant information in various locations, a service provider may expose an interface to manage ACs network-wide. Customers can then request a base attachment circuit to be put in place, and then refer to that base AC when requesting services that are bound to that AC. {{!I-D.boro-opsawg-teas-attachment-circuit}} specifies a data model for managing ACs as a service.
+The procedure to provision a service in a service provider network may depend on the practices adopted by a service provider, including the flow put in place for the provisioning of advanced network services and how they are bound to an attachment circuit (AC). For example, the same attachment circuit may be used to host multiple services (e.g., Layer 2 VPN, Slice Services, or Layer 3 VPN). In order to avoid service interference and redundant information in various locations, a service provider may expose an interface to manage attachment circuits network-wide. Customers can then request a base attachment circuit to be put in place, and then refer to that AC when requesting services to be bound to that AC. {{!I-D.boro-opsawg-teas-attachment-circuit}} specifies a data model for managing attachment circuits as a service.
 
 This document specifies a network model for attachment circuits ("ietf-ac-ntw"). The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service).
 
@@ -97,7 +97,7 @@ The AC network model is designed as an augmnetation to the Service Attachment Po
 ~~~~
 {: #sap-ac-ntw title="Attachment Circuits Examples" artwork-align="center"}
 
-The AC network model uses the AC common model defined in {{!I-D.boro-opsawg-teas-attachment-circuit}}.
+The AC network model uses the AC common model defined in {{!I-D.boro-opsawg-teas-common-ac}}.
 
  The YANG data model in this document conforms to the Network Management Datastore Architecture (NMDA) defined in {{!RFC8342}}.
 
@@ -261,7 +261,7 @@ The security tree structure is shown in {{sec-tree}}.
 
 #  YANG Module
 
-This module uses types defined in {{!RFC6991}}, {{!RFC8177}}, {{!RFC8294}}, {{!RFC8343}}, {{!RFC9181}}, and IEEE Std 802.1Qcp.
+This module uses types defined in {{!RFC6991}}, {{!RFC8177}}, {{!RFC8294}}, {{!RFC8343}}, {{!RFC9181}}, {{!I-D.boro-opsawg-teas-common-ac}}, and IEEE Std 802.1Qcp.
 
 ~~~~
 <CODE BEGINS> file "ietf-ac-ntw@2022-11-30.yang"
