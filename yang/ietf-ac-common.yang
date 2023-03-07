@@ -65,7 +65,7 @@ module ietf-ac-common {
       "RFC xxxx: A Common YANG Data Model for Attachment Circuits";
   }
 
-  /****************************Identities************************/
+  /***************************Identities************************/
 
   // IP address allocation types
 
