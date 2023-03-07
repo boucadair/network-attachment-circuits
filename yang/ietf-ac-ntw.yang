@@ -222,9 +222,10 @@ module ietf-ac-ntw {
             leaf push {
               type empty;
               description
-                "Pushes one or two tags defined by the tag-1 and tag-2
-                 leaves. It is assumed that, absent any policy, 
-                 the default value of 0 will be used for PCP setting.";
+                "Pushes one or two tags defined by the tag-1 and 
+                 tag-2 leaves. It is assumed that, absent any policy, 
+                 the default value of 0 will be used for PCP 
+                 setting.";
             }
             leaf translate {
               type uint8 {
@@ -669,8 +670,8 @@ module ietf-ac-ntw {
       type string;
       description
         "Includes a description of the BGP session. This description 
-         is meant to be used for diagnostic purposes. The semantic of 
-         the description is local to an implementation.";
+         is meant to be used for diagnostic purposes. The semantic 
+         of the description is local to an implementation.";
     }
     leaf local-as {
       type inet:as-number;
@@ -1282,9 +1283,9 @@ module ietf-ac-ntw {
                 "Metric of the sham link. It is used in the routing
                  state calculation and path selection.";
               reference
-                "RFC 4577: OSPF as the Provider/Customer Edge Protocol
-                           for BGP/MPLS IP Virtual Private Networks
-                           (VPNs), Section 4.2.7.3
+                "RFC 4577: OSPF as the Provider/Customer Edge 
+                           Protocol for BGP/MPLS IP Virtual Private
+                           Networks (VPNs), Section 4.2.7.3
                  RFC 6565: OSPFv3 as a Provider Edge to Customer Edge
                            (PE-CE) Routing Protocol, Section 5.2";
             }
