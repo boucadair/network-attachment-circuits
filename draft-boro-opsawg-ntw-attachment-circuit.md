@@ -46,7 +46,10 @@ author:
 normative:
 
 informative:
-
+  AC-Ntw-Tree:
+    title: Full Network Attachment Circuit Tree Structure
+    date: 2023
+    target: https://github.com/boucadair/network-attachment-circuits/blob/main/yang/ac-ntw-without-groupings.txt
 
 --- abstract
 
@@ -223,7 +226,7 @@ Unlike the AC service model, an AC is uniquely identified within the scope of a 
 ~~~~
 {: #o-ntw-tree title="Overall Tree Structure"}
 
-The full tree of the 'ac-ntw' is provided in {{full-tree}}.
+The full tree of the 'ac-ntw' is provided in {{AC-Ntw-Tree}}.
 
 ## L2 Connection
 
@@ -317,6 +320,7 @@ This module uses types defined in {{!RFC6991}}, {{!RFC8177}}, {{!RFC8294}}, {{!R
    * TBC
    * TBC
 
+Several data nodes ('bgp', 'ospf', 'isis', and 'rip') rely upon {{!RFC8177}} for authentication purposes. As such, the AC network module inherits the security considerations discussed in Section 5 of {{!RFC8177}}. Also, these data nodes support supplying explicit keys as strings in ASCII format. The use of keys in hexadecimal string format would afford greater key entropy with the same number of key-string octets. However, such a format is not included in this version of the AC network model, because it is not supported by the underlying device modules (e.g., {{?RFC8695}}).
 
 # IANA Considerations
 
@@ -341,12 +345,6 @@ This module uses types defined in {{!RFC6991}}, {{!RFC8177}}, {{!RFC8294}}, {{!R
 ~~~~
 
 --- back
-
-# Full Tree {#full-tree}
-
-~~~~
-{::include ./yang/ac-ntw-without-groupings.txt}
-~~~~
 
 # Acknowledgments
 {:numbered="false"}
