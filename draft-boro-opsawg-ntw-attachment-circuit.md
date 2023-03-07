@@ -198,6 +198,17 @@ Unlike the AC service model, an AC is uniquely identified within the scope of a 
        +--rw ac-ref?              ac-svc:attachment-circuit-reference
        +--rw ac-profile* [profile-id]
        |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+       +--rw peer-sap-id*         string
+       +--rw group* [group-id]
+       |  +--rw group-id      string
+       |  +--rw precedence?   identityref
+       +--rw status
+       |  +--rw admin-status
+       |  |  +--rw status?        identityref
+       |  |  +--rw last-change?   yang:date-and-time
+       |  +--ro oper-status
+       |     +--ro status?        identityref
+       |     +--ro last-change?   yang:date-and-time
        +--rw description?         string
        +--rw l2-connection
        |  ...
