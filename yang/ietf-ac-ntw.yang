@@ -223,9 +223,9 @@ module ietf-ac-ntw {
               type empty;
               description
                 "Pushes one or two tags defined by the tag-1 and 
-                 tag-2 leaves. It is assumed that, absent any policy, 
-                 the default value of 0 will be used for PCP 
-                 setting.";
+                 tag-2 leaves. It is assumed that, absent any 
+                 policy, the default value of 0 will be used for 
+                 PCP setting.";
             }
             leaf translate {
               type uint8 {
@@ -242,9 +242,9 @@ module ietf-ac-ntw {
                    provided: both outer and inner tags are translated
                    to the values in tag-1 and tag-2, respectively.
 
-                 - translate 2 with tag-1 leaf is provided: the outer 
-                   tag is popped while the inner tag is translated to
-                   the value in tag-1.";
+                 - translate 2 with tag-1 leaf is provided: the 
+                   outer tag is popped while the inner tag is 
+                   translated to the value in tag-1.";
             }
           }
           leaf tag-1 {
@@ -1729,6 +1729,28 @@ module ietf-ac-ntw {
           }
           description
             "A reference to an AC profile.";
+        }
+      }
+      leaf-list peer-sap-id {
+        type string;
+        description
+          "One or more peer SAPs can be indicated.";
+      }
+      list group {
+        key "group-id";
+        description
+          "List of group-ids.";
+        leaf group-id {
+          type string;
+          description
+            "Indicates the group-id to which the AC belongs.";
+        }
+        leaf precedence {
+          type identityref {
+            base ac-common:precedence-type;
+          }
+          description
+            "Defines redundancy of an AC.";
         }
       }
       uses vpn-common:service-status;
