@@ -38,8 +38,8 @@ module ietf-ac-ntw {
   import ietf-network {
     prefix nw;
     reference
-      "RFC 8345: A YANG Data Model for Network
-                 Topologies, Section 6.1";
+      "RFC 8345: A YANG Data Model for Network Topologies, 
+                 Section 6.1";
   }
   import ietf-sap-ntw {
     prefix sap;
