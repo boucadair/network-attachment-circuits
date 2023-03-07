@@ -25,9 +25,9 @@
        |  |     |  |        +--rw address-pool* [pool-id]
        |  |     |  |           +--rw pool-id          string
        |  |     |  |           +--rw start-address
-       |  |     |  |           |       inet:ipv6-address
+       |  |     |  |           |       inet:ipv4-address
        |  |     |  |           +--rw end-address?
-       |  |     |  |                   inet:ipv6-address
+       |  |     |  |                   inet:ipv4-address
        |  |     |  +--rw (provider-dhcp)?
        |  |     |  |  +--:(dhcp-service-type)
        |  |     |  |  |  +--rw dhcp-service-type?
@@ -36,18 +36,16 @@
        |  |     |  |     +--rw (service-type)?
        |  |     |  |        +--:(relay)
        |  |     |  |           +--rw server-ip-address*
-       |  |     |  |                   inet:ipv6-address
+       |  |     |  |                   inet:ipv4-address
        |  |     |  +--rw (dhcp-relay)?
        |  |     |     +--:(customer-dhcp-servers)
        |  |     |        +--rw customer-dhcp-servers
        |  |     |           +--rw server-ip-address*
-       |  |     |                   inet:ipv6-address
+       |  |     |                   inet:ipv4-address
        |  |     +--:(static-addresses)
-       |  |        +--rw primary-address?
-       |  |        |       -> ../address/address-id
        |  |        +--rw address* [address-id]
        |  |           +--rw address-id          string
-       |  |           +--rw customer-address?   inet:ipv6-address
+       |  |           +--rw customer-address?   inet:ipv4-address
        |  +--rw ipv6 {vpn-common:ipv6}?
        |     +--rw local-address?
        |     |       inet:ipv6-address
@@ -82,8 +80,6 @@
        |        |           +--rw server-ip-address*
        |        |                   inet:ipv6-address
        |        +--:(static-addresses)
-       |           +--rw primary-address?
-       |           |       -> ../address/address-id
        |           +--rw address* [address-id]
        |              +--rw address-id          string
        |              +--rw customer-address?   inet:ipv6-address
