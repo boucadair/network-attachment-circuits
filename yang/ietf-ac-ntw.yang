@@ -229,7 +229,7 @@ module ietf-ac-ntw {
                 range "1|2";
               }
               description
-                "Translates one or two outer tags.  PCP bits are preserved.
+                "Translates one or two outer tags. PCP bits are preserved.
 
                  The following operations are supported:
 
@@ -297,9 +297,7 @@ module ietf-ac-ntw {
 
   grouping l2-connection-if-ref {
     description
-      "Defines Layer 2 protocols and parameters that are required to
-       enable AC connectivity. This grouping includes interface
-       references.";
+      "Specifies Layer 2 connection paramters with interface references.";
     uses l2-connection;
     leaf l2-termination-point {
       type string;
@@ -428,26 +426,26 @@ module ietf-ac-ntw {
               }
               enum relay {
                 description
-                  "Local DHCP relay.  DHCP requests
-                   are relayed to a provider's server.";
+                  "Local DHCP relay.  DHCP requests are relayed to a
+                   provider's server.";
               }
             }
             description
-              "Indicates the type of DHCP service to
-               be enabled on this access.";
+              "Indicates the type of DHCP service to be enabled on
+               this access.";
           }
           choice service-type {
             description
               "Choice based on the DHCP service type.";
             case relay {
               description
-                "Container for a list of the provider's DHCP servers (i.e.,
-                 'dhcp-service-type' is set to 'relay').";
+                "Container for a list of the provider's DHCP servers
+                 (i.e., 'dhcp-service-type' is set to 'relay').";
               leaf-list server-ip-address {
                 type inet:ipv4-address;
                 description
-                  "IPv4 addresses of the provider's DHCP server,
-                   for use by the local DHCP relay.";
+                  "IPv4 addresses of the provider's DHCP server, for
+                   use by the local DHCP relay.";
               }
             }
           }
@@ -655,8 +653,7 @@ module ietf-ac-ntw {
   }
 
   /* Routing */
-  //BGP-generic
-  //BGP-extended
+  //BGP base parameters
 
   grouping bgp-base {
     description
@@ -859,7 +856,7 @@ module ietf-ac-ntw {
            messages be one-third of the Hold Time interval.";
         reference
           "RFC 4271: A Border Gateway Protocol 4 (BGP-4),
-           Section 4.4";
+                     Section 4.4";
       }
       leaf hold-time {
         type uint16 {
@@ -876,19 +873,77 @@ module ietf-ac-ntw {
            seconds.";
         reference
           "RFC 4271: A Border Gateway Protocol 4 (BGP-4),
-           Section 4.2";
+                     Section 4.2";
       }
     }
   }
 
-  grouping bgp-base-with-auth {
+  // RIP base parameters
+
+  grouping rip-base {
     description
-      "Configuration specific to BGP.";
-    uses bgp-base;
-    uses ac-common:bgp-authentication;
+      "Configuration specific to RIP routing.";
+    leaf address-family {
+      type identityref {
+        base vpn-common:address-family;
+      }
+      description
+        "Indicates whether IPv4, IPv6, or both address families are
+         to be activated.";
+    }
+    container timers {
+      description
+        "Indicates the RIP timers.";
+      reference
+        "RFC 2453: RIP Version 2";
+      leaf update-interval {
+        type uint16 {
+          range "1..32767";
+        }
+        units "seconds";
+        description
+          "Indicates the RIP update time, i.e., the amount of time
+           for which RIP updates are sent.";
+      }
+      leaf invalid-interval {
+        type uint16 {
+          range "1..32767";
+        }
+        units "seconds";
+        description
+          "The interval before a route is declared invalid after no
+           updates are received. This value is at least three times
+           the value for the 'update-interval' argument.";
+      }
+      leaf holddown-interval {
+        type uint16 {
+          range "1..32767";
+        }
+        units "seconds";
+        description
+          "Specifies the interval before better routes are released.";
+      }
+      leaf flush-interval {
+        type uint16 {
+          range "1..32767";
+        }
+        units "seconds";
+        description
+          "Indicates the RIP flush timer, i.e., the amount of time
+           that must elapse before a route is removed from the
+           routing table.";
+      }
+    }
+    leaf default-metric {
+      type uint8 {
+        range "0..16";
+      }
+      description
+        "Sets the default metric.";
+    }
   }
 
-  //routing profile
+  // routing profile
 
   grouping routing-profile {
     description
@@ -983,69 +1038,11 @@ module ietf-ac-ntw {
         when "derived-from-or-self(../type, "
            + "'vpn-common:rip-routing')" {
           description
-            "Only applies when the protocol is RIP.
-             For IPv4, the model assumes that RIP version 2 is used.";
+            "Only applies when the protocol is RIP.";
         }
         description
           "Configuration specific to RIP routing.";
-        leaf address-family {
-          type identityref {
-            base vpn-common:address-family;
-          }
-          description
-            "Indicates whether IPv4, IPv6, or both address families are
-             to be activated.";
-        }
-        container timers {
-          description
-            "Indicates the RIP timers.";
-          reference
-            "RFC 2453: RIP Version 2";
-          leaf update-interval {
-            type uint16 {
-              range "1..32767";
-            }
-            units "seconds";
-            description
-              "Indicates the RIP update time, i.e., the amount of time
-               for which RIP updates are sent.";
-          }
-          leaf invalid-interval {
-            type uint16 {
-              range "1..32767";
-            }
-            units "seconds";
-            description
-              "The interval before a route is declared invalid after no
-               updates are received. This value is at least three times
-               the value for the 'update-interval' argument.";
-          }
-          leaf holddown-interval {
-            type uint16 {
-              range "1..32767";
-            }
-            units "seconds";
-            description
-              "Specifies the interval before better routes are released.";
-          }
-          leaf flush-interval {
-            type uint16 {
-              range "1..32767";
-            }
-            units "seconds";
-            description
-              "Indicates the RIP flush timer, i.e., the amount of time
-               that must elapse before a route is removed from the
-               routing table.";
-          }
-        }
-        leaf default-metric {
-          type uint8 {
-            range "0..16";
-          }
-          description
-            "Sets the default metric.";
-        }
+        uses rip-base;
       }
       container vrrp {
         when "derived-from-or-self(../type, "
@@ -1203,7 +1200,8 @@ module ietf-ac-ntw {
                  session. This may be expressed as either an IP address
                  or a reference to an interface.";
             }
-            uses bgp-base-with-auth;
+            uses bgp-base;
+            uses ac-common:bgp-authentication;
           }
         }
         list neighbor {
@@ -1234,7 +1232,8 @@ module ietf-ac-ntw {
               "The peer-group with which this neighbor is
                associated.";
           }
-          uses bgp-base-with-auth;
+          uses bgp-base;
+          uses ac-common:bgp-authentication;
           uses vpn-common:service-status;
         }
       }
@@ -1352,70 +1351,7 @@ module ietf-ac-ntw {
         }
         description
           "Configuration specific to RIP routing.";
-        leaf address-family {
-          type identityref {
-            base vpn-common:address-family;
-          }
-          description
-            "Indicates whether IPv4, IPv6, or both address families
-             are to be activated.";
-        }
-        container timers {
-          description
-            "Indicates the RIP timers.";
-          reference
-            "RFC 2453: RIP Version 2";
-          leaf update-interval {
-            type uint16 {
-              range "1..32767";
-            }
-            units "seconds";
-            default "30";
-            description
-              "Indicates the RIP update time, i.e., the amount of time
-               for which RIP updates are sent.";
-          }
-          leaf invalid-interval {
-            type uint16 {
-              range "1..32767";
-            }
-            units "seconds";
-            default "180";
-            description
-              "The interval before a route is declared invalid after no
-               updates are received. This value is at least three times
-               the value for the 'update-interval' argument.";
-          }
-          leaf holddown-interval {
-            type uint16 {
-              range "1..32767";
-            }
-            units "seconds";
-            default "180";
-            description
-              "Specifies the interval before better
-               routes are released.";
-          }
-          leaf flush-interval {
-            type uint16 {
-              range "1..32767";
-            }
-            units "seconds";
-            default "240";
-            description
-              "Indicates the RIP flush timer, i.e., the amount of time
-               that must elapse before a route is removed from the
-               routing table.";
-          }
-        }
-        leaf default-metric {
-          type uint8 {
-            range "0..16";
-          }
-          default "1";
-          description
-            "Sets the default metric.";
-        }
+        uses rip-base;
         uses ac-common:rip-authentication;
         uses vpn-common:service-status;
       }
@@ -1539,14 +1475,11 @@ module ietf-ac-ntw {
         "Expected BFD holdtime.
 
          The customer may impose some fixed values for the holdtime
-         period if the provider allows the customer to use
-         this function.
-
-         If the provider doesn't allow the customer to use this
-         function, fixed values will not be set.";
+         period if the provider allows the customer to use this
+         function.";
       reference
         "RFC 5880: Bidirectional Forwarding Detection (BFD),
-         Section 6.8.18";
+                   Section 6.8.18";
     }
   }
 
