@@ -43,6 +43,27 @@ author:
     organization: Huawei Technologies
     email: lana.wubo@huawei.com
 
+contributor:
+  -
+    name: Victor Lopez
+    org: Nokia
+    email: victor.lopez@nokia.com
+
+  -
+    name: Ivan Bykov
+    org: Ribbon Communications
+    email: Ivan.Bykov@rbbn.com
+
+  -
+    name: Qin Wu
+    org: Huawei
+    email: bill.wu@huawei.com
+
+  -
+    name: Ogaki Kenichi
+    org: KDDI
+    email: ke-oogaki@kddi.com
+
 normative:
 
 informative:
