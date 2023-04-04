@@ -50,19 +50,24 @@ contributor:
     email: victor.lopez@nokia.com
 
   -
-    name: Ivan Bykov
-    org: Ribbon Communications
+    fullname: Ivan Bykov
+    organization: Ribbon Communications
     email: Ivan.Bykov@rbbn.com
 
   -
-    name: Qin Wu
-    org: Huawei
+    fullname: Qin Wu
+    organization: Huawei
     email: bill.wu@huawei.com
 
   -
-    name: Ogaki Kenichi
-    org: KDDI
+    fullname: Ogaki Kenichi
+    organization: KDDI
     email: ke-oogaki@kddi.com
+
+  -
+    fullname: Luis Angel Munoz
+    organization: Vodafone
+    email: luis-angel.munoz@vodafone.com
 
 normative:
 
