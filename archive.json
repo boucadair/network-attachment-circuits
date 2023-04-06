@@ -1,0 +1,211 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2023-04-06T00:59:32.722480+00:00",
+  "repo": "boucadair/network-attachment-circuits",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOIi4HlM5Y7E_3",
+      "title": "Attach (in/out) BGP policies",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/1",
+      "state": "OPEN",
+      "author": "boucadair",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-12-12T13:22:44Z",
+      "updatedAt": "2022-12-12T13:23:29Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 2,
+      "id": "I_kwDOIi4HlM5bCgjV",
+      "title": "Sample: Request An AC over An Existing Bearer",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/2",
+      "state": "CLOSED",
+      "author": "sbarguil",
+      "authorAssociation": "NONE",
+      "assignees": [
+        "boucadair"
+      ],
+      "labels": [],
+      "body": "\r\nIn This sample a AC is requested over existing bearer:\r\n\r\n```\r\n{\r\n  \"ietf-ac-svc:attachment-circuits\": {\r\n    \"ac\": [\r\n      {\r\n        \"name\": \"ac4585\",\r\n        \"description\": \"An AC on an existing bearer\",\r\n        \"requested-ac-start\": \"2023-12-12T05:00:00.00Z\",\r\n        \"l2-connection\": {\r\n          \"encapsulation\": {\r\n            \"type\": \"ietf-vpn-common:dot1q\",\r\n            \"dot1q\": {\r\n              \"tag-type\": \"ietf-vpn-common:c-vlan\",\r\n              \"cvlan-id\": 550\r\n            }\r\n          },\r\n          \"bearer-reference\": \"line-156\"\r\n        }\r\n      }\r\n    ]\r\n  }\r\n}\r\n```\r\n\r\nTo realize this request the controller **should** be aware of the existing bearers in the network.\r\n\r\n- If it is a brownfield scenario, the bearer can not be populate so how we consider this attribute can be obtained?\r\n\r\n- In greenfield scenarios, this parameter can exist, for example using the L3NM can be assigned in the VP-NETWORK-ACCESS. In this case, the controller should make a reverse lookup to discover the existing bearers in the network and find where to attach the new AC. This can be exahustive in big networks and can limit the usability. \r\n- As the bearer represents a concept itself can, we consider modeling the bearers? O something similar as Bridge Domain to group  SAPs or ACs?\r\n",
+      "createdAt": "2023-01-10T13:22:00Z",
+      "updatedAt": "2023-03-22T09:31:25Z",
+      "closedAt": "2023-03-07T14:41:51Z",
+      "comments": [
+        {
+          "author": "boucadair",
+          "authorAssociation": "OWNER",
+          "body": "Agree that it is useful to consider modeling the bearers as part of the service creation. This is the intent of https://github.com/boucadair/attachment-circuit-model/issues/5 ",
+          "createdAt": "2023-01-10T13:32:26Z",
+          "updatedAt": "2023-01-10T13:32:26Z"
+        },
+        {
+          "author": "boucadair",
+          "authorAssociation": "OWNER",
+          "body": "Handled as part of the service model",
+          "createdAt": "2023-03-07T14:41:51Z",
+          "updatedAt": "2023-03-07T14:41:51Z"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "id": "I_kwDOIi4HlM5fal4H",
+      "title": "add more details about bearers",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/3",
+      "state": "OPEN",
+      "author": "boucadair",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2023-02-27T09:29:37Z",
+      "updatedAt": "2023-02-27T09:29:37Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 4,
+      "id": "I_kwDOIi4HlM5hBcIY",
+      "title": "Bearer: missing customer port in \"customer point\" section",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/4",
+      "state": "OPEN",
+      "author": "Ivan-Bykov-RBBN",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2023-03-16T15:40:21Z",
+      "updatedAt": "2023-03-16T15:40:21Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 5,
+      "id": "I_kwDOIi4HlM5hBd3W",
+      "title": "Bearer: add to model physical information of the connectivity",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/5",
+      "state": "OPEN",
+      "author": "Ivan-Bykov-RBBN",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "- crossing id and fiber parameters\r\n- microwave line id with port id\r\n- l2 or l3 leased service id \r\n- id of additional switch in the middle, not controlled by \"customer\" or \"provider\"",
+      "createdAt": "2023-03-16T15:44:34Z",
+      "updatedAt": "2023-03-16T15:44:34Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "I_kwDOIi4HlM5hBeY5",
+      "title": "Bearer: add LAG parameters ",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/6",
+      "state": "OPEN",
+      "author": "Ivan-Bykov-RBBN",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2023-03-16T15:45:54Z",
+      "updatedAt": "2023-03-16T15:45:54Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 7,
+      "id": "I_kwDOIi4HlM5hBiDs",
+      "title": "Bearer: add provider parameters ",
+      "url": "https://github.com/boucadair/network-attachment-circuits/issues/7",
+      "state": "OPEN",
+      "author": "Ivan-Bykov-RBBN",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "PE parameters in bearer ( inherited from 3GPP TS28.541 where is mentioned PE paramenters NextHopInfo)     \r\n         +--rw provider-point\r\n        add provider port id \r\n         |  +--rw device\r\n         |  |  +--rw device-id?   string   ---FQDN\r\n        add location of PE section ",
+      "createdAt": "2023-03-16T15:54:50Z",
+      "updatedAt": "2023-03-16T15:54:50Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
+  "pulls": [
+    {
+      "number": 8,
+      "id": "PR_kwDOIi4HlM5NkV7w",
+      "title": "check pipe error",
+      "url": "https://github.com/boucadair/network-attachment-circuits/pull/8",
+      "state": "CLOSED",
+      "author": "boucadair",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2023-04-04T09:49:03Z",
+      "updatedAt": "2023-04-04T09:49:56Z",
+      "baseRepository": "boucadair/network-attachment-circuits",
+      "baseRefName": "main",
+      "baseRefOid": "fa01c8e04178a2ec0f157095aa2d0defd2764839",
+      "headRepository": "boucadair/network-attachment-circuits",
+      "headRefName": "check-pipe-error",
+      "headRefOid": "6155b2bc79ddfd6b12bd617fa0adbd37e954dc63",
+      "closedAt": "2023-04-04T09:49:56Z",
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    }
+  ]
+}

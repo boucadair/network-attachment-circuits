@@ -1,0 +1,3525 @@
+
+
+
+
+Operations and Management Area Working Group           M. Boucadair, Ed.
+Internet-Draft                                                    Orange
+Intended status: Standards Track                              R. Roberts
+Expires: 2 September 2023                                        Juniper
+                                                           O. G. D. Dios
+                                                              Telefonica
+                                                           S. B. Giraldo
+                                                                   Nokia
+                                                                   B. Wu
+                                                     Huawei Technologies
+                                                            1 March 2023
+
+
+           A Network YANG Data Model for Attachment Circuits
+            draft-boro-opsawg-ntw-attachment-circuit-latest
+
+Abstract
+
+   This document specifies a network model for attachment circuits.  The
+   model can be used for the provisioning of attachment circuits prior
+   or during service provisioning (e.g., Network Slice Service).  A
+   companion service model is specified in
+   [I-D.boro-opsawg-teas-attachment-circuit].
+
+   The module augments the Service Attachment Point (SAP) model with the
+   detailed information for the provisioning of attachment circuits in
+   Provider Edges (PEs).
+
+Discussion Venues
+
+   This note is to be removed before publishing as an RFC.
+
+   Discussion of this document takes place on the Operations and
+   Management Area Working Group Working Group mailing list
+   (opsawg@ietf.org), which is archived at
+   https://mailarchive.ietf.org/arch/browse/opsawg/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/boucadair/network-attachment-circuits.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 2 September 2023.
+
+Copyright Notice
+
+   Copyright (c) 2023 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+   2.  Conventions and Definitions
+   3.  Sample Uses of the Attachment Circuit Data Models
+   4.  Description of the Attachment Circuit YANG Module
+     4.1.  Overall Structure of the Module
+     4.2.  L2 Connection
+     4.3.  IP Connection
+     4.4.  Routing
+     4.5.  OAM
+     4.6.  Security
+   5.  YANG Module
+   6.  Security Considerations
+   7.  IANA Considerations
+   8.  References
+     8.1.  Normative References
+     8.2.  Informative References
+   Appendix A.  Full Tree
+   Acknowledgments
+   Authors' Addresses
+
+1.  Introduction
+
+   The procedure to provision a service in a service provider network
+   may depend on the practices adopted by a service provider, including
+   the flow put in place for the provisioning of advanced network
+   services and how they are bound to an attachment circuit.  For
+   example, the same attachment circuit may be used to host multiple
+   services.  In order to avoid service interference and redundant
+   information in various locations, a service provider may expose an
+   interface to manage ACs network-wide.  Customers can then request a
+   base attachment circuit to be put in place, and then refer to that
+   base AC when requesting services that are bound to that AC.
+   [I-D.boro-opsawg-teas-attachment-circuit] specifies a data model for
+   managing ACs as a service.
+
+   This document specifies a network model for attachment circuits
+   ("ietf-ac-ntw").  The model can be used for the provisioning of
+   attachment circuits prior or during service provisioning (e.g.,
+   Network Slice Service).
+
+   The document leverages [RFC9182] and [RFC9291] by adopting an AC
+   provisioning structure that uses data nodes that are defined in these
+   RFCs.  Some refinements were introduced to cover, not only
+   conventional service provider networks, but also specifics of other
+   target deployments (cloud, for example).
+
+   The AC network model is designed as an augmnetation to the Service
+   Attachment Point (SAP) model [I-D.ietf-opsawg-sap].  An AC can be
+   bound to a single or multiple SAPs.  Likewise, the model is designed
+   to accomdate deployments where a SAP can be bound to one or multiple
+   ACs.
+
+                    .---.
+                    |CE6|
+                    '-+-'
+                   ac |        .---.        .---.        .---.
+                    .-+-.      |CE5+--------+   +--------+CE2|
+               .----+   +---.  '---'        '-+-'       '---'
+               |    '-+-'   |                 |ac
+               |            |                 |
+             .-+-.       .-+-.              .-+-.
+           .-+sap+-------+sap+-.          .-+sap+-------------.
+           | '---'       '---' |          | '---'             |
+.---.    .-+-.                 |          |                   |
+|CE1+----+sap|      PE1        |          |         PE2       |
+'---' ac '-+-'                 |          |                   |
+           '-------------------'          '-------------------'
+
+           .-------------------.          .-------------------.
+           |                   |          |                 .-+-. ac .---.
+           |         PE3       |          |        PE4      |sap+----+CE5|
+           |                   |          |                 '---'    '---'
+           |             .---. |          | .---. .---. .---. |
+           '-------------+sap+-'          '-+sap+-+sap+-+sap+-'
+                         '-+-'              '-+-' '-+-' '-+-'
+                           |ac                |     |ac   |ac
+                         .-+-.                |   .-+-.   |
+                         |CE3+--------ac------'   |CE4+---'
+                         '---'                    '---'
+
+                Figure 1: Attachment Circuits Examples
+
+   The AC network model uses the AC common model defined in
+   [I-D.boro-opsawg-teas-attachment-circuit].
+
+   The YANG data model in this document conforms to the Network
+   Management Datastore Architecture (NMDA) defined in [RFC8342].
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   The reader should be familiar with the terms defined in Section 2 of
+   [I-D.ietf-opsawg-sap].
+
+   This document uses the term "network model" as defined in Section 2.1
+   of [RFC8969].
+
+   The meanings of the symbols in the YANG tree diagrams are defined in
+   [RFC8340].
+
+   This document uses the following terms:
+
+   Bearer:  A physical or logical link that connects a customer node (or
+      site) to a provider network.  A bearer can be a wireless or wired
+      link.  One or multiple technologies can be used to build a bearer.
+      The bearer type can be specified by a customer.
+
+      The operator allocates a unique bearer reference to identify a
+      bearer within its network (e.g., customer line identifier).  Such
+      a reference can be retrieved by a customer and used in subsequent
+      service placement requests to unambiguously identify where a
+      service is to be bound.
+
+      The concept of bearer can be generalized to refer to the required
+      underlying connection for the provisioning of an attachment
+      circuit.  One or multiple attachment circuits may be hosted over
+      the same bearer (e.g., multiple VLANs on the same bearer that is
+      provided by a physical link).
+
+   Network controller:  Denotes a functional entity responsible for the
+      management of the service provider network.
+
+   Service orchestrator:  Refers to a functional entity that interacts
+      with the customer of a network service.  The service orchestrator
+      is typically responsible for the attachment circuits, the Provider
+      Edge (PE) selection, and requesting the activation of the
+      requested service to a network controller.
+
+   Service provider network:  A network that is able to provide network
+      services (e.g., Network Slice Services).
+
+   Service provider:  A service provider that offers network services
+      (e.g., Network Slice Services).
+
+   Customer Terminating Point (CTP):  Refers to a customer-owned
+      endpoint that terminates an attachment circuit.  Such an endpoint
+      can be a Customer Edge (CE), a Network Function (NF), a peer ASBR,
+      etc.
+
+3.  Sample Uses of the Attachment Circuit Data Models
+
+   Figure 2 shows the positioning of the AC network model in the overall
+   service delivery process.
+
+                               +---------------+
+                               |   Customer    |
+                               +-------+-------+
+               Customer Service Model  |
+             e.g., slice-svc, ac-svc   |
+                               +-------+-------+
+                               |    Service    |
+                               | Orchestration |
+                               +-------+-------+
+                Network Model          |
+          e.g., l3vpn-ntw, sap, ac-ntw |
+                               +-------+-------+
+                               |   Network     |
+                               | Orchestration |
+                               +-------+-------+
+         Network Configuration Model   |
+                           +-----------+-----------+
+                           |                       |
+                  +--------+------+       +--------+------+
+                  |    Domain     |       |     Domain    |
+                  | Orchestration |       | Orchestration |
+                  +---+-----------+       +--------+------+
+       Device         |        |                   |
+       Configuration  |        |                   |
+       Model          |        |                   |
+                 +----+----+   |                   |
+                 | Config  |   |                   |
+                 | Manager |   |                   |
+                 +----+----+   |                   |
+                      |        |                   |
+                      | NETCONF/CLI..................
+                      | NETCONF/CLI..................
+                      |        |                   |
+                    +--------------------------------+
+      +----+ Bearer |                                | Bearer +----+
+      |CTP +--------+            Network             +--------+ CTP|
+      +----+        |                                |        +----+
+                    +--------------------------------+
+       Site A                                                  Site B
+
+             Figure 2: An Example of the Network AC Model Usage
+
+4.  Description of the Attachment Circuit YANG Module
+
+4.1.  Overall Structure of the Module
+
+   The overall tree structure of the module is shown in Figure 3.  A
+   node can host one or more SAPs as per [I-D.ietf-opsawg-sap].  Each
+   SAP terminate one or multiple ACs.  The SAP model in
+   [I-D.ietf-opsawg-sap] is thus augmented with required AC-related
+   information.  Also, in order to ease the correlation between the AC
+   exposed at the service layer and the one that is actually provisioned
+   in the network operation, a reference to the AC exposed to the
+   customer ('ac-ref') is stored in the 'ac-ntw' module.
+
+   Unlike the AC service model, an AC is uniquely identified within the
+   scope of a node not a network.  An AC can be characterized using
+   Layer 2 connectivity, Layer 3 connectivity, routing protocols, OAM,
+   and security considerations.  In order to factorize a set of data
+   that is provisioned for a set of ACs, a set of profiled can be
+   defined at the network level, and then called under the node level.
+   The information contained in the profile are thus inherited, unless
+   the corresponding data node is refined at the AC level.  In such as
+   case, the value provided at the AC level takes precedence over the
+   global one.
+
+     augment /nw:networks/nw:network:
+       +--rw ac-profile* [name]
+          ...
+     augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+       +--rw ac* [name]
+          +--rw name                 string
+          +--rw ac-ref?              ac-svc:attachment-circuit-reference
+          +--rw ac-profile* [profile-id]
+          |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+          +--rw description?         string
+          +--rw l2-connection
+          |  ...
+          +--rw ip-connection
+          |  ...
+          +--rw routing-protocols
+          |  ...
+          +--rw oam
+          |  ...
+          +--rw security
+             ...
+
+                      Figure 3: Overall Tree Structure
+
+   The full tree of the 'ac-ntw' is provided in Appendix A.
+
+4.2.  L2 Connection
+
+   The Layer 2 connection tree structure is shown in Figure 4.
+
+     augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+       +--rw ac* [name]
+          +--rw name                 string
+          +--rw ac-ref?              ac-svc:attachment-circuit-reference
+          +--rw ac-profile* [profile-id]
+          |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+          +--rw description?         string
+          +--rw l2-connection
+          |  +--rw encapsulation
+          |  |  +--rw encap-type?        identityref
+          |  |  +--rw dot1q
+          |  |  |  +--rw tag-type?         identityref
+          |  |  |  +--rw cvlan-id?         uint16
+          |  |  |  +--rw tag-operations
+          |  |  |     +--rw (op-choice)?
+          |  |  |     |  +--:(pop)
+          |  |  |     |  |  +--rw pop?         empty
+          |  |  |     |  +--:(push)
+          |  |  |     |  |  +--rw push?        empty
+          |  |  |     |  +--:(translate)
+          |  |  |     |     +--rw translate?   empty
+          |  |  |     +--rw tag-1?             dot1q-types:vlanid
+          |  |  |     +--rw tag-1-type?
+          |  |  |     |       dot1q-types:dot1q-tag-type
+          |  |  |     +--rw tag-2?             dot1q-types:vlanid
+          |  |  |     +--rw tag-2-type?
+          |  |  |             dot1q-types:dot1q-tag-type
+          |  |  +--rw priority-tagged
+          |  |  |  +--rw tag-type?   identityref
+          |  |  +--rw qinq
+          |  |     +--rw tag-type?         identityref
+          |  |     +--rw svlan-id          uint16
+          |  |     +--rw cvlan-id          uint16
+          |  |     +--rw tag-operations
+          |  |        +--rw (op-choice)?
+          |  |        |  +--:(pop)
+          |  |        |  |  +--rw pop?         uint8
+          |  |        |  +--:(push)
+          |  |        |  |  +--rw push?        empty
+          |  |        |  +--:(translate)
+          |  |        |     +--rw translate?   uint8
+          |  |        +--rw tag-1?             dot1q-types:vlanid
+          |  |        +--rw tag-1-type?
+          |  |        |       dot1q-types:dot1q-tag-type
+          |  |        +--rw tag-2?             dot1q-types:vlanid
+          |  |        +--rw tag-2-type?
+          |  |                dot1q-types:dot1q-tag-type
+          |  +--rw (l2-service)?
+          |  |  +--:(l2-tunnel-service)
+          |  |  |  +--rw l2-tunnel-service
+          |  |  |     +--rw type?         identityref
+          |  |  |     +--rw pseudowire
+          |  |  |     |  +--rw vcid?      uint32
+          |  |  |     |  +--rw far-end?   union
+          |  |  |     +--rw vpls
+          |  |  |     |  +--rw vcid?      uint32
+          |  |  |     |  +--rw far-end*   union
+          |  |  |     +--rw vxlan
+          |  |  |        +--rw vni-id             uint32
+          |  |  |        +--rw peer-mode?         identityref
+          |  |  |        +--rw peer-ip-address*   inet:ip-address
+          |  |  +--:(l2vpn)
+          |  |     +--rw l2vpn-id?            vpn-common:vpn-id
+          |  +--rw l2-termination-point?      string
+          |  +--rw local-bridge-reference?    string
+          |  +--rw bearer-reference?          string
+          |  |       {vpn-common:bearer-reference}?
+          |  +--rw lag-interface {vpn-common:lag-interface}?
+          |     +--rw lag-interface-id?   string
+          |     +--rw member-link-list
+          |        +--rw member-link* [name]
+          |           +--rw name    string
+          +--rw ip-connection
+          |  ...
+          +--rw routing-protocols
+          |  ...
+          +--rw oam
+          |  ...
+          +--rw security
+             ...
+
+                Figure 4: Layer 2 Connection Tree Structure
+
+4.3.  IP Connection
+
+   The Layer 3 connection tree structure is shown in Figure 5.
+
+     augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+       +--rw ac* [name]
+          +--rw name                 string
+          +--rw ac-ref?              ac-svc:attachment-circuit-reference
+          +--rw ac-profile* [profile-id]
+          |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+          +--rw description?         string
+          +--rw l2-connection
+          |  ...
+          +--rw ip-connection
+          |  +--rw l3-termination-point?   string
+          |  +--rw ipv4 {vpn-common:ipv4}?
+          |  |  +--rw local-address?
+          |  |  |       inet:ipv4-address
+          |  |  +--rw prefix-length?                           uint8
+          |  |  +--rw address-allocation-type?
+          |  |  |       identityref
+          |  |  +--rw (allocation-type)?
+          |  |     +--:(dynamic)
+          |  |     |  +--rw (address-assign)?
+          |  |     |  |  +--:(number)
+          |  |     |  |  |  +--rw number-of-dynamic-address?   uint16
+          |  |     |  |  +--:(explicit)
+          |  |     |  |     +--rw customer-addresses
+          |  |     |  |        +--rw address-pool* [pool-id]
+          |  |     |  |           +--rw pool-id          string
+          |  |     |  |           +--rw start-address
+          |  |     |  |           |       inet:ipv6-address
+          |  |     |  |           +--rw end-address?
+          |  |     |  |                   inet:ipv6-address
+          |  |     |  +--rw (provider-dhcp)?
+          |  |     |  |  +--:(dhcp-service-type)
+          |  |     |  |  |  +--rw dhcp-service-type?
+          |  |     |  |  |          enumeration
+          |  |     |  |  +--:(service-type)
+          |  |     |  |     +--rw (service-type)?
+          |  |     |  |        +--:(relay)
+          |  |     |  |           +--rw server-ip-address*
+          |  |     |  |                   inet:ipv6-address
+          |  |     |  +--rw (dhcp-relay)?
+          |  |     |     +--:(customer-dhcp-servers)
+          |  |     |        +--rw customer-dhcp-servers
+          |  |     |           +--rw server-ip-address*
+          |  |     |                   inet:ipv6-address
+          |  |     +--:(static-addresses)
+          |  |        +--rw primary-address?
+          |  |        |       -> ../address/address-id
+          |  |        +--rw address* [address-id]
+          |  |           +--rw address-id          string
+          |  |           +--rw customer-address?   inet:ipv6-address
+          |  +--rw ipv6 {vpn-common:ipv6}?
+          |     +--rw local-address?
+          |     |       inet:ipv6-address
+          |     +--rw prefix-length?                           uint8
+          |     +--rw address-allocation-type?
+          |     |       identityref
+          |     +--rw (allocation-type)?
+          |        +--:(dynamic)
+          |        |  +--rw (address-assign)?
+          |        |  |  +--:(number)
+          |        |  |  |  +--rw number-of-dynamic-address?   uint16
+          |        |  |  +--:(explicit)
+          |        |  |     +--rw customer-addresses
+          |        |  |        +--rw address-pool* [pool-id]
+          |        |  |           +--rw pool-id          string
+          |        |  |           +--rw start-address
+          |        |  |           |       inet:ipv6-address
+          |        |  |           +--rw end-address?
+          |        |  |                   inet:ipv6-address
+          |        |  +--rw (provider-dhcp)?
+          |        |  |  +--:(dhcp-service-type)
+          |        |  |  |  +--rw dhcp-service-type?
+          |        |  |  |          enumeration
+          |        |  |  +--:(service-type)
+          |        |  |     +--rw (service-type)?
+          |        |  |        +--:(relay)
+          |        |  |           +--rw server-ip-address*
+          |        |  |                   inet:ipv6-address
+          |        |  +--rw (dhcp-relay)?
+          |        |     +--:(customer-dhcp-servers)
+          |        |        +--rw customer-dhcp-servers
+          |        |           +--rw server-ip-address*
+          |        |                   inet:ipv6-address
+          |        +--:(static-addresses)
+          |           +--rw primary-address?
+          |           |       -> ../address/address-id
+          |           +--rw address* [address-id]
+          |              +--rw address-id          string
+          |              +--rw customer-address?   inet:ipv6-address
+          +--rw routing-protocols
+          |  ...
+          +--rw oam
+          |  ...
+          +--rw security
+             ...
+
+                   Figure 5: IP Connection Tree Structure
+
+4.4.  Routing
+
+   The routing tree structure is shown in Figure 6.
+
+   module: ietf-ac-ntw
+     augment /nw:networks/nw:network:
+       +--rw ac-profile* [name]
+          +--rw name                 string
+          +--rw l2-connection
+          +--rw ip-connection
+          +--rw routing-protocols
+          |  +--rw routing-protocol* [id]
+          |     +--rw id      string
+          |     +--rw type?   identityref
+          |     +--rw bgp
+          |     |  +--rw description?              string
+          |     |  +--rw local-as?                 inet:as-number
+          |     |  +--rw peer-as                   inet:as-number
+          |     |  +--rw address-family?           identityref
+          |     |  +--rw multihop?                 uint8
+          |     |  +--rw as-override?              boolean
+          |     |  +--rw allow-own-as?             uint8
+          |     |  +--rw prepend-global-as?        boolean
+          |     |  +--rw send-default-route?       boolean
+          |     |  +--rw site-of-origin?           rt-types:route-origin
+          |     |  +--rw ipv6-site-of-origin?
+          |     |  |       rt-types:ipv6-route-origin
+          |     |  +--rw redistribute-connected* [address-family]
+          |     |  |  +--rw address-family    identityref
+          |     |  |  +--rw enable?           boolean
+          |     |  +--rw bgp-max-prefix
+          |     |  |  +--rw max-prefix?          uint32
+          |     |  |  +--rw warning-threshold?   decimal64
+          |     |  |  +--rw violate-action?      enumeration
+          |     |  |  +--rw restart-timer?       uint32
+          |     |  +--rw bgp-timers
+          |     |     +--rw keepalive?   uint16
+          |     |     +--rw hold-time?   uint16
+          |     +--rw ospf
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw area-id           yang:dotted-quad
+          |     |  +--rw metric?           uint16
+          |     |  +--rw max-lsa?          uint32
+          |     +--rw isis
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw area-address      area-address
+          |     |  +--rw level?            identityref
+          |     |  +--rw metric?           uint16
+          |     |  +--rw mode?             enumeration
+          |     +--rw rip
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw timers
+          |     |  |  +--rw update-interval?     uint16
+          |     |  |  +--rw invalid-interval?    uint16
+          |     |  |  +--rw holddown-interval?   uint16
+          |     |  |  +--rw flush-interval?      uint16
+          |     |  +--rw default-metric?   uint8
+          |     +--rw vrrp
+          |        +--rw address-family?   identityref
+          |        +--rw ping-reply?       boolean
+          +--rw oam
+             ...
+     augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+       +--rw ac* [name]
+          +--rw name                 string
+          +--rw ac-ref?              ac-svc:attachment-circuit-reference
+          +--rw ac-profile* [profile-id]
+          |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+          +--rw description?         string
+          +--rw l2-connection
+          |  ...
+          +--rw ip-connection
+          |  ...
+          +--rw routing-protocols
+          |  +--rw routing-protocol* [id]
+          |     +--rw id                  string
+          |     +--rw type?               identityref
+          |     +--rw routing-profiles* [id]
+          |     |  +--rw id      leafref
+          |     |  +--rw type?   identityref
+          |     +--rw static
+          |     |  +--rw cascaded-lan-prefixes
+          |     |     +--rw ipv4-lan-prefixes* [lan next-hop]
+          |     |     |       {vpn-common:ipv4}?
+          |     |     |  +--rw lan           inet:ipv4-prefix
+          |     |     |  +--rw lan-tag?      string
+          |     |     |  +--rw next-hop      union
+          |     |     |  +--rw metric?       uint32
+          |     |     |  +--rw bfd-enable?   boolean {vpn-common:bfd}?
+          |     |     |  +--rw preference?   uint32
+          |     |     |  +--rw status
+          |     |     |     +--rw admin-status
+          |     |     |     |  +--rw status?        identityref
+          |     |     |     |  +--rw last-change?   yang:date-and-time
+          |     |     |     +--ro oper-status
+          |     |     |        +--ro status?        identityref
+          |     |     |        +--ro last-change?   yang:date-and-time
+          |     |     +--rw ipv6-lan-prefixes* [lan next-hop]
+          |     |             {vpn-common:ipv6}?
+          |     |        +--rw lan           inet:ipv4-prefix
+          |     |        +--rw lan-tag?      string
+          |     |        +--rw next-hop      union
+          |     |        +--rw metric?       uint32
+          |     |        +--rw bfd-enable?   boolean {vpn-common:bfd}?
+          |     |        +--rw preference?   uint32
+          |     |        +--rw status
+          |     |           +--rw admin-status
+          |     |           |  +--rw status?        identityref
+          |     |           |  +--rw last-change?   yang:date-and-time
+          |     |           +--ro oper-status
+          |     |              +--ro status?        identityref
+          |     |              +--ro last-change?   yang:date-and-time
+          |     +--rw bgp
+          |     |  +--rw peer-groups
+          |     |  |  +--rw peer-group* [name]
+          |     |  |     +--rw name                      string
+          |     |  |     +--rw local-address?            union
+          |     |  |     +--rw description?              string
+          |     |  |     +--rw local-as?                 inet:as-number
+          |     |  |     +--rw peer-as                   inet:as-number
+          |     |  |     +--rw address-family?           identityref
+          |     |  |     +--rw multihop?                 uint8
+          |     |  |     +--rw as-override?              boolean
+          |     |  |     +--rw allow-own-as?             uint8
+          |     |  |     +--rw prepend-global-as?        boolean
+          |     |  |     +--rw send-default-route?       boolean
+          |     |  |     +--rw site-of-origin?
+          |     |  |     |       rt-types:route-origin
+          |     |  |     +--rw ipv6-site-of-origin?
+          |     |  |     |       rt-types:ipv6-route-origin
+          |     |  |     +--rw redistribute-connected* [address-family]
+          |     |  |     |  +--rw address-family    identityref
+          |     |  |     |  +--rw enable?           boolean
+          |     |  |     +--rw bgp-max-prefix
+          |     |  |     |  +--rw max-prefix?          uint32
+          |     |  |     |  +--rw warning-threshold?   decimal64
+          |     |  |     |  +--rw violate-action?      enumeration
+          |     |  |     |  +--rw restart-timer?       uint32
+          |     |  |     +--rw bgp-timers
+          |     |  |     |  +--rw keepalive?   uint16
+          |     |  |     |  +--rw hold-time?   uint16
+          |     |  |     +--rw authentication
+          |     |  |        +--rw enable?            boolean
+          |     |  |        +--rw keying-material
+          |     |  |           +--rw (option)?
+          |     |  |              +--:(ao)
+          |     |  |              |  +--rw enable-ao?          boolean
+          |     |  |              |  +--rw ao-keychain?
+          |     |  |              |          key-chain:key-chain-ref
+          |     |  |              +--:(md5)
+          |     |  |              |  +--rw md5-keychain?
+          |     |  |              |          key-chain:key-chain-ref
+          |     |  |              +--:(explicit)
+          |     |  |                 +--rw key-id?             uint32
+          |     |  |                 +--rw key?                string
+          |     |  |                 +--rw crypto-algorithm?
+          |     |  |                         identityref
+          |     |  +--rw neighbor* [remote-address]
+          |     |     +--rw remote-address            inet:ip-address
+          |     |     +--rw local-address?            union
+          |     |     +--rw peer-group?
+          |     |     |       -> ../../peer-groups/peer-group/name
+          |     |     +--rw description?              string
+          |     |     +--rw local-as?                 inet:as-number
+          |     |     +--rw peer-as                   inet:as-number
+          |     |     +--rw address-family?           identityref
+          |     |     +--rw multihop?                 uint8
+          |     |     +--rw as-override?              boolean
+          |     |     +--rw allow-own-as?             uint8
+          |     |     +--rw prepend-global-as?        boolean
+          |     |     +--rw send-default-route?       boolean
+          |     |     +--rw site-of-origin?
+          |     |     |       rt-types:route-origin
+          |     |     +--rw ipv6-site-of-origin?
+          |     |     |       rt-types:ipv6-route-origin
+          |     |     +--rw redistribute-connected* [address-family]
+          |     |     |  +--rw address-family    identityref
+          |     |     |  +--rw enable?           boolean
+          |     |     +--rw bgp-max-prefix
+          |     |     |  +--rw max-prefix?          uint32
+          |     |     |  +--rw warning-threshold?   decimal64
+          |     |     |  +--rw violate-action?      enumeration
+          |     |     |  +--rw restart-timer?       uint32
+          |     |     +--rw bgp-timers
+          |     |     |  +--rw keepalive?   uint16
+          |     |     |  +--rw hold-time?   uint16
+          |     |     +--rw authentication
+          |     |     |  +--rw enable?            boolean
+          |     |     |  +--rw keying-material
+          |     |     |     +--rw (option)?
+          |     |     |        +--:(ao)
+          |     |     |        |  +--rw enable-ao?          boolean
+          |     |     |        |  +--rw ao-keychain?
+          |     |     |        |          key-chain:key-chain-ref
+          |     |     |        +--:(md5)
+          |     |     |        |  +--rw md5-keychain?
+          |     |     |        |          key-chain:key-chain-ref
+          |     |     |        +--:(explicit)
+          |     |     |           +--rw key-id?             uint32
+          |     |     |           +--rw key?                string
+          |     |     |           +--rw crypto-algorithm?   identityref
+          |     |     +--rw status
+          |     |        +--rw admin-status
+          |     |        |  +--rw status?        identityref
+          |     |        |  +--rw last-change?   yang:date-and-time
+          |     |        +--ro oper-status
+          |     |           +--ro status?        identityref
+          |     |           +--ro last-change?   yang:date-and-time
+          |     +--rw ospf
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw area-id           yang:dotted-quad
+          |     |  +--rw metric?           uint16
+          |     |  +--rw sham-links {vpn-common:rtg-ospf-sham-link}?
+          |     |  |  +--rw sham-link* [target-site]
+          |     |  |     +--rw target-site    string
+          |     |  |     +--rw metric?        uint16
+          |     |  +--rw max-lsa?          uint32
+          |     |  +--rw authentication
+          |     |  |  +--rw enable?            boolean
+          |     |  |  +--rw keying-material
+          |     |  |     +--rw (option)?
+          |     |  |        +--:(auth-key-chain)
+          |     |  |        |  +--rw key-chain?
+          |     |  |        |          key-chain:key-chain-ref
+          |     |  |        +--:(auth-key-explicit)
+          |     |  |           +--rw key-id?             uint32
+          |     |  |           +--rw key?                string
+          |     |  |           +--rw crypto-algorithm?   identityref
+          |     |  +--rw status
+          |     |     +--rw admin-status
+          |     |     |  +--rw status?        identityref
+          |     |     |  +--rw last-change?   yang:date-and-time
+          |     |     +--ro oper-status
+          |     |        +--ro status?        identityref
+          |     |        +--ro last-change?   yang:date-and-time
+          |     +--rw isis
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw area-address      area-address
+          |     |  +--rw level?            identityref
+          |     |  +--rw metric?           uint16
+          |     |  +--rw mode?             enumeration
+          |     |  +--rw authentication
+          |     |  |  +--rw enable?            boolean
+          |     |  |  +--rw keying-material
+          |     |  |     +--rw (option)?
+          |     |  |        +--:(auth-key-chain)
+          |     |  |        |  +--rw key-chain?
+          |     |  |        |          key-chain:key-chain-ref
+          |     |  |        +--:(auth-key-explicit)
+          |     |  |           +--rw key-id?             uint32
+          |     |  |           +--rw key?                string
+          |     |  |           +--rw crypto-algorithm?   identityref
+          |     |  +--rw status
+          |     |     +--rw admin-status
+          |     |     |  +--rw status?        identityref
+          |     |     |  +--rw last-change?   yang:date-and-time
+          |     |     +--ro oper-status
+          |     |        +--ro status?        identityref
+          |     |        +--ro last-change?   yang:date-and-time
+          |     +--rw rip
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw timers
+          |     |  |  +--rw update-interval?     uint16
+          |     |  |  +--rw invalid-interval?    uint16
+          |     |  |  +--rw holddown-interval?   uint16
+          |     |  |  +--rw flush-interval?      uint16
+          |     |  +--rw default-metric?   uint8
+          |     |  +--rw authentication
+          |     |  |  +--rw enable?            boolean
+          |     |  |  +--rw keying-material
+          |     |  |     +--rw (option)?
+          |     |  |        +--:(auth-key-chain)
+          |     |  |        |  +--rw key-chain?
+          |     |  |        |          key-chain:key-chain-ref
+          |     |  |        +--:(auth-key-explicit)
+          |     |  |           +--rw key?                string
+          |     |  |           +--rw crypto-algorithm?   identityref
+          |     |  +--rw status
+          |     |     +--rw admin-status
+          |     |     |  +--rw status?        identityref
+          |     |     |  +--rw last-change?   yang:date-and-time
+          |     |     +--ro oper-status
+          |     |        +--ro status?        identityref
+          |     |        +--ro last-change?   yang:date-and-time
+          |     +--rw vrrp
+          |        +--rw address-family?       identityref
+          |        +--rw vrrp-group?           uint8
+          |        +--rw backup-peer?          inet:ip-address
+          |        +--rw virtual-ip-address*   inet:ip-address
+          |        +--rw priority?             uint8
+          |        +--rw ping-reply?           boolean
+          |        +--rw status
+          |           +--rw admin-status
+          |           |  +--rw status?        identityref
+          |           |  +--rw last-change?   yang:date-and-time
+          |           +--ro oper-status
+          |              +--ro status?        identityref
+          |              +--ro last-change?   yang:date-and-time
+          +--rw oam
+          |  ...
+          +--rw security
+             ...
+
+                      Figure 6: Rotuing Tree Structure
+
+4.5.  OAM
+
+   The OAM tree structure is shown in Figure 7.
+
+  augment /nw:networks/nw:network:
+    +--rw ac-profile* [name]
+       +--rw name                 string
+       +--rw l2-connection
+       +--rw ip-connection
+       +--rw routing-protocols
+       |  ...
+       +--rw oam
+          +--rw bfd {vpn-common:bfd}?
+             +--rw session-type?               identityref
+             +--rw desired-min-tx-interval?    uint32
+             +--rw required-min-rx-interval?   uint32
+             +--rw local-multiplier?           uint8
+             +--rw holdtime?                   uint32
+  augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+    +--rw ac* [name]
+       +--rw name                 string
+       +--rw ac-ref?              ac-svc:attachment-circuit-reference
+       +--rw ac-profile* [profile-id]
+       |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+       +--rw description?         string
+       +--rw l2-connection
+       |  ...
+       +--rw ip-connection
+       |  ...
+       +--rw routing-protocols
+       |  ...
+       +--rw oam
+       |  +--rw bfd
+       |     +--rw profile?                    ac-svc:bfd-profile-reference
+       |     +--rw session-type?               identityref
+       |     +--rw desired-min-tx-interval?    uint32
+       |     +--rw required-min-rx-interval?   uint32
+       |     +--rw local-multiplier?           uint8
+       |     +--rw holdtime?                   uint32
+       |     +--rw authentication!
+       |     |  +--rw key-chain?    key-chain:key-chain-ref
+       |     |  +--rw meticulous?   boolean
+       |     +--rw status
+       |        +--rw admin-status
+       |        |  +--rw status?        identityref
+       |        |  +--rw last-change?   yang:date-and-time
+       |        +--ro oper-status
+       |           +--ro status?        identityref
+       |           +--ro last-change?   yang:date-and-time
+       +--rw security
+          ...
+
+                     Figure 7: OAM Tree Structure
+
+4.6.  Security
+
+   The security tree structure is shown in Figure 8.
+
+     augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+       +--rw ac* [name]
+          +--rw name                 string
+          +--rw ac-ref?              ac-svc:attachment-circuit-reference
+          +--rw ac-profile* [profile-id]
+          |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+          +--rw description?         string
+          +--rw l2-connection
+          |  ...
+          +--rw ip-connection
+          |  ...
+          +--rw routing-protocols
+          |  ...
+          +--rw oam
+          |  ...
+          +--rw security
+             +--rw encryption {vpn-common:encryption}?
+             |  +--rw enabled?   boolean
+             |  +--rw layer?     enumeration
+             +--rw encryption-profile
+                +--rw (profile)?
+                   +--:(provider-profile)
+                   |  +--rw profile-name?         leafref
+                   +--:(customer-profile)
+                      +--rw customer-key-chain?
+                              key-chain:key-chain-ref
+
+                     Figure 8: Security Tree Structure
+
+5.  YANG Module
+
+   This module uses types defined in [RFC6991], [RFC8177], [RFC8294],
+   [RFC8343], [RFC9181], and IEEE Std 802.1Qcp.
+
+   <CODE BEGINS> file "ietf-ac-ntw@2022-11-30.yang"
+   module ietf-ac-ntw {
+     yang-version 1.1;
+     namespace "urn:ietf:params:xml:ns:yang:ietf-ac-ntw";
+     prefix ac-ntw;
+
+     import ietf-vpn-common {
+       prefix vpn-common;
+       reference
+         "RFC 9181: A Common YANG Data Model for Layer 2 and Layer 3
+                    VPNs";
+     }
+     import ietf-inet-types {
+       prefix inet;
+       reference
+         "RFC 6991: Common YANG Data Types, Section 4";
+     }
+     import ietf-key-chain {
+       prefix key-chain;
+       reference
+         "RFC 8177: YANG Data Model for Key Chains";
+     }
+     import ietf-routing-types {
+       prefix rt-types;
+       reference
+         "RFC 8294: Common YANG Data Types for the Routing Area";
+     }
+     import ietf-interfaces {
+       prefix if;
+       reference
+         "RFC 8343: A YANG Data Model for Interface Management";
+     }
+     import ieee802-dot1q-types {
+       prefix dot1q-types;
+       reference
+         "IEEE Std 802.1Qcp: Bridges and Bridged Networks--
+                             Amendment 30: YANG Data Model";
+     }
+     import ietf-network {
+       prefix nw;
+       reference
+         "RFC 8345: A YANG Data Model for Network
+                    Topologies, Section 6.1";
+     }
+     import ietf-sap-ntw {
+       prefix sap;
+       reference
+         "RFC SSSS: A YANG Network Model for Service Attachment
+                    Points (SAPs)";
+     }
+     import ietf-ac-common {
+       prefix ac-common;
+       reference
+         "RFC xxx: XXXX";
+     }
+     import ietf-ac-svc {
+       prefix ac-svc;
+       reference
+         "RFC xxx: XXXX";
+     }
+
+     organization
+       "IETF OPSAWG (Operations and Management Area Working Group)";
+     contact
+       "WG Web:   <https://datatracker.ietf.org/wg/opsawg/>
+        WG List:  <mailto:opsawg@ietf.org>
+
+        Editor:   Mohamed Boucadair
+                  <mailto:mohamed.boucadair@orange.com>
+        Author:   Richard Roberts
+                  <mailto:rroberts@juniper.net>";
+     description
+       "This YANG module defines a generic YANG model for
+        the configuration of attachment circuits.
+
+        Copyright (c) 2023 IETF Trust and the persons identified as
+        authors of the code.  All rights reserved.
+
+        Redistribution and use in source and binary forms, with or
+        without modification, is permitted pursuant to, and subject
+        to the license terms contained in, the Revised BSD License
+        set forth in Section 4.c of the IETF Trust's Legal Provisions
+        Relating to IETF Documents
+        (https://trustee.ietf.org/license-info).
+
+        This version of this YANG module is part of RFC xxx; see the
+        RFC itself for full legal notices.";
+
+     revision 2022-11-30 {
+       description
+         "Initial revision.";
+       reference
+         "RFC xxxx: A YANG Network Data Model for Attachment Circuits";
+     }
+
+     // L2 conenction
+
+     grouping l2-connection {
+       description
+         "Defines Layer 2 protocols and parameters that
+          are required to enable AC connectivity.";
+       container encapsulation {
+         description
+           "Container for Layer 2 encapsulation.";
+         leaf encap-type {
+           type identityref {
+             base vpn-common:encapsulation-type;
+           }
+           default "vpn-common:priority-tagged";
+           description
+             "Tagged interface type.  By default, the
+              type of the tagged interface is
+              'priority-tagged'.";
+         }
+         container dot1q {
+           when "derived-from-or-self(../encap-type, "
+              + "'vpn-common:dot1q')" {
+             description
+               "Only applies when the type of the
+                tagged interface is 'dot1q'.";
+           }
+           description
+             "Tagged interface.";
+           uses ac-common:dot1q;
+           container tag-operations {
+             description
+               "Sets the tag manipulation policy for this
+                VPN network access.  It defines a set of
+                tag manipulations that allow for the
+                insertion, removal, or rewriting
+                of 802.1Q VLAN tags.  These operations are
+                indicated for the CE-PE direction.
+                By default, tag operations are symmetric.
+                As such, the reverse tag operation is
+                assumed on the PE-CE direction.";
+             choice op-choice {
+               description
+                 "Selects the tag rewriting policy for a
+                  VPN network access.";
+               leaf pop {
+                 type empty;
+                 description
+                   "Pop the outer tag.";
+               }
+               leaf push {
+                 type empty;
+                 description
+                   "Pushes one or two tags defined by the
+                    tag-1 and tag-2 leaves.  It is
+                    assumed that, absent any policy, the
+                    default value of 0 will be used for
+                    the PCP setting.";
+               }
+               leaf translate {
+                 type empty;
+                 description
+                   "Translates the outer tag to one or two
+                    tags.  PCP bits are preserved.";
+               }
+             }
+             leaf tag-1 {
+               when 'not(../pop)';
+               type dot1q-types:vlanid;
+               description
+                 "A first tag to be used for push or
+                  translate operations.  This tag will be
+                  used as the outermost tag as a result
+                  of the tag operation.";
+             }
+             leaf tag-1-type {
+               type dot1q-types:dot1q-tag-type;
+               default "dot1q-types:s-vlan";
+               description
+                 "Specifies a specific 802.1Q tag type
+                  of tag-1.";
+             }
+             leaf tag-2 {
+               when '(../translate)';
+               type dot1q-types:vlanid;
+               description
+                 "A second tag to be used for
+                  translation.";
+             }
+             leaf tag-2-type {
+               type dot1q-types:dot1q-tag-type;
+               default "dot1q-types:c-vlan";
+               description
+                 "Specifies a specific 802.1Q tag type
+                  of tag-2.";
+             }
+           }
+         }
+         container priority-tagged {
+           when "derived-from-or-self(../encap-type, "
+              + "'vpn-common:priority-tagged')" {
+             description
+               "Only applies when the type of the
+                tagged interface is 'priority-tagged'.";
+           }
+           description
+             "Priority tagged container.";
+           uses ac-common:priority-tagged;
+         }
+         container qinq {
+           when "derived-from-or-self(../encap-type, "
+              + "'vpn-common:qinq')" {
+             description
+               "Only applies when the type of the tagged
+                interface is 'QinQ'.";
+           }
+           description
+             "Includes QinQ parameters.";
+           uses ac-common:qinq;
+           container tag-operations {
+             description
+               "Sets the tag manipulation policy for this
+                VPN network access.  It defines a set of
+                tag manipulations that allow for the
+                insertion, removal, or rewriting
+                of 802.1Q VLAN tags.  These operations are
+                indicated for the CE-PE direction.
+                By default, tag operations are symmetric.
+                As such, the reverse tag operation is
+                assumed on the PE-CE direction.";
+             choice op-choice {
+               description
+                 "Selects the tag rewriting policy for a
+                  VPN network access.";
+               leaf pop {
+                 type uint8 {
+                   range "1|2";
+                 }
+                 description
+                   "Pops one or two tags as a function of the indicated pop
+                    value.";
+               }
+               leaf push {
+                 type empty;
+                 description
+                   "Pushes one or two tags defined by the tag-1 and tag-2 leaves.
+                    It is assumed that, absent any policy, the default value of 0
+                    will be used for PCP setting.";
+               }
+               leaf translate {
+                 type uint8 {
+                   range "1|2";
+                 }
+                 description
+                   "Translates one or two outer tags.  PCP bits are preserved.
+
+                    The following operations are supported:
+
+                    - translate 1 with tag-1 leaf is
+                      provided: only the outermost tag is
+                      translated to the value in tag-1.
+
+                    - translate 2 with both tag-1 and
+                      tag-2 leaves are provided: both
+                      outer and inner tags are translated
+                      to the values in tag-1 and tag-2,
+                      respectively.
+
+                    - translate 2 with tag-1 leaf is
+                      provided: the outer tag is popped
+                      while the inner tag is translated
+                      to the value in tag-1.";
+               }
+             }
+             leaf tag-1 {
+               when 'not(../pop)';
+               type dot1q-types:vlanid;
+               description
+                 "A first tag to be used for push or
+                  translate operations.  This tag will be
+                  used as the outermost tag as a result
+                  of the tag operation.";
+             }
+             leaf tag-1-type {
+               type dot1q-types:dot1q-tag-type;
+               default "dot1q-types:s-vlan";
+               description
+                 "Specifies a specific 802.1Q tag type of tag-1.";
+             }
+             leaf tag-2 {
+               when 'not(../pop)';
+               type dot1q-types:vlanid;
+               description
+                 "A second tag to be used for push or translate operations.";
+             }
+             leaf tag-2-type {
+               type dot1q-types:dot1q-tag-type;
+               default "dot1q-types:c-vlan";
+               description
+                 "Specifies a specific 802.1Q tag type of tag-2.";
+             }
+           }
+         }
+       }
+       choice l2-service {
+         description
+           "The Layer 2 connectivity service can be
+            provided by indicating a pointer to an
+            L2VPN or by specifying a Layer 2 tunnel
+            service.";
+         container l2-tunnel-service {
+           description
+             "Defines a Layer 2 tunnel termination.
+              It is only applicable when a tunnel is
+              required.  The supported values are
+              'pseudowire', 'vpls', and 'vxlan'.  Other
+              values may be defined, if needed.";
+           uses ac-common:l2-tunnel-service;
+         }
+         case l2vpn {
+           leaf l2vpn-id {
+             type vpn-common:vpn-id;
+             description
+               "Indicates the L2VPN service associated
+                with an Integrated Routing and Bridging
+                (IRB) interface.";
+           }
+         }
+       }
+     }
+
+     grouping l2-connection-if-ref {
+       description
+         "Defines Layer 2 protocols and parameters that
+          are required to enable AC connectivity.";
+       uses l2-connection;
+       leaf l2-termination-point {
+         type string;
+         description
+           "Specifies a reference to a local Layer 2 termination point, such as a
+            Layer 2 sub-interface.";
+       }
+       leaf local-bridge-reference {
+         type string;
+         description
+           "Specifies a local bridge reference to accommodate, for example,
+            implementations that require internal bridging.
+            A reference may be a local bridge domain.";
+       }
+       leaf bearer-reference {
+         if-feature "vpn-common:bearer-reference";
+         type string;
+         description
+           "This is an internal reference for the
+            service provider to identify the bearer
+            associated with this VPN.";
+       }
+       container lag-interface {
+         if-feature "vpn-common:lag-interface";
+         description
+           "Container for configuration of Link Aggregation Group (LAG) interface
+            attributes.";
+         leaf lag-interface-id {
+           type string;
+           description
+             "LAG interface identifier.";
+         }
+         container member-link-list {
+           description
+             "Container for the member link list.";
+           list member-link {
+             key "name";
+             description
+               "Member link.";
+             leaf name {
+               type string;
+               description
+                 "Member link name.";
+             }
+           }
+         }
+       }
+     }
+
+     grouping ip-connection {
+       description
+         "Defines IP connection parameters.";
+       leaf l3-termination-point {
+         type string;
+         description
+           "Specifies a reference to a local Layer 3 termination point, such as a
+            bridge domain interface.";
+       }
+       container ipv4 {
+         if-feature "vpn-common:ipv4";
+         description
+           "IPv4-specific parameters.";
+         leaf local-address {
+           type inet:ipv4-address;
+           description
+             "The IP address used at the provider's interface.";
+         }
+         uses ac-common:ipv4-allocation-type;
+         choice allocation-type {
+           description
+             "Choice of the IPv4 address allocation.";
+           case dynamic {
+             description
+               "When the addresses are allocated by DHCP or other
+                dynamic means local to the infrastructure.";
+             choice address-assign {
+               default "number";
+               description
+                 "A choice for how IPv4 addresses are assigned.";
+               case number {
+                 leaf number-of-dynamic-address {
+                   type uint16;
+                   default "1";
+                   description
+                     "Specifies the number of IP addresses to be assigned to
+                      the customer on this access.";
+                 }
+               }
+               case explicit {
+                 container customer-addresses {
+                   description
+                     "Container for customer addresses to be allocated
+                      using DHCP.";
+                   list address-pool {
+                     key "pool-id";
+                     description
+                       "Describes IP addresses to be dyncamically allocated.
+
+                        When only 'start-address' is present, it represents a
+                        single address.
+
+                        When both 'start-address' and 'end-address' are
+                        specified, it implies a range inclusive of both
+                        addresses.";
+                     leaf pool-id {
+                       type string;
+                       description
+                         "A pool identifier for the address range from
+                          'start-address' to 'end-address'.";
+                     }
+                     leaf start-address {
+                       type inet:ipv6-address;
+                       mandatory true;
+                       description
+                         "Indicates the first address in the pool.";
+                     }
+                     leaf end-address {
+                       type inet:ipv6-address;
+                       description
+                         "Indicates the last address in the pool.";
+                     }
+                   }
+                 }
+               }
+             }
+             choice provider-dhcp {
+               description
+                 "Parameters related to DHCP-allocated addresses.
+                  IP addresses are allocated by DHCP, which is provided
+                  by the operator.";
+               leaf dhcp-service-type {
+                 type enumeration {
+                   enum server {
+                     description
+                       "Local DHCP server.";
+                   }
+                   enum relay {
+                     description
+                       "Local DHCP relay.  DHCP requests
+                        are relayed to a provider's server.";
+                   }
+                 }
+                 description
+                   "Indicates the type of DHCP service to
+                    be enabled on this access.";
+               }
+               choice service-type {
+                 description
+                   "Choice based on the DHCP service type.";
+                 case relay {
+                   description
+                     "Container for a list of the
+                      provider's DHCP servers (i.e.,
+                      'dhcp-service-type' is set to
+                      'relay').";
+                   leaf-list server-ip-address {
+                     type inet:ipv6-address;
+                     description
+                       "IPv6 addresses of the provider's
+                        DHCP server, for use by the local
+                        DHCP relay.";
+                   }
+                 }
+               }
+             }
+             choice dhcp-relay {
+               description
+                 "The DHCP relay is provided by the operator.";
+               container customer-dhcp-servers {
+                 description
+                   "Container for a list of the customer's DHCP servers.";
+                 leaf-list server-ip-address {
+                   type inet:ipv6-address;
+                   description
+                     "IPv6 addresses of the customer's DHCP server.";
+                 }
+               }
+             }
+           }
+           case static-addresses {
+             description
+               "Lists the IPv6 addresses that are used.";
+             leaf primary-address {
+               type leafref {
+                 path "../address/address-id";
+               }
+               description
+                 "Primary IP address of the connection.";
+             }
+             list address {
+               key "address-id";
+               description
+                 "Lists the IPv6 addresses that are used.";
+               leaf address-id {
+                 type string;
+                 description
+                   "An identifier of the static IPv6 address.";
+               }
+               leaf customer-address {
+                 type inet:ipv6-address;
+                 description
+                   "An IPv6 address of the customer side.";
+               }
+             }
+           }
+         }
+       }
+       container ipv6 {
+         if-feature "vpn-common:ipv6";
+         description
+           "IPv6-specific parameters.";
+         leaf local-address {
+           type inet:ipv6-address;
+           description
+             "IPv6 address of the provider side.";
+         }
+         uses ac-common:ipv6-allocation-type;
+         choice allocation-type {
+           description
+             "Choice of the IPv6 address allocation.";
+           case dynamic {
+             description
+               "When the addresses are allocated by DHCP or other
+                dynamic means local to the infrastructure.";
+             choice address-assign {
+               default "number";
+               description
+                 "A choice for how IPv6 addresses are assigned.";
+               case number {
+                 leaf number-of-dynamic-address {
+                   type uint16;
+                   default "1";
+                   description
+                     "Specifies the number of IP addresses to be assigned to
+                      the customer on this access.";
+                 }
+               }
+               case explicit {
+                 container customer-addresses {
+                   description
+                     "Container for customer addresses to be allocated
+                      using DHCP.";
+                   list address-pool {
+                     key "pool-id";
+                     description
+                       "Describes IP addresses to be dyncamically allocated.
+
+                        When only 'start-address' is present, it represents a
+                        single address.
+
+                        When both 'start-address' and 'end-address' are
+                        specified, it implies a range inclusive of both
+                        addresses.";
+                     leaf pool-id {
+                       type string;
+                       description
+                         "A pool identifier for the address range from
+                          'start-address' to 'end-address'.";
+                     }
+                     leaf start-address {
+                       type inet:ipv6-address;
+                       mandatory true;
+                       description
+                         "Indicates the first address in the pool.";
+                     }
+                     leaf end-address {
+                       type inet:ipv6-address;
+                       description
+                         "Indicates the last address in the pool.";
+                     }
+                   }
+                 }
+               }
+             }
+             choice provider-dhcp {
+               description
+                 "Parameters related to DHCP-allocated addresses.
+                  IP addresses are allocated by DHCP, which is provided
+                  by the operator.";
+               leaf dhcp-service-type {
+                 type enumeration {
+                   enum server {
+                     description
+                       "Local DHCP server.";
+                   }
+                   enum relay {
+                     description
+                       "Local DHCP relay.  DHCP requests
+                        are relayed to a provider's server.";
+                   }
+                 }
+                 description
+                   "Indicates the type of DHCP service to
+                    be enabled on this access.";
+               }
+               choice service-type {
+                 description
+                   "Choice based on the DHCP service type.";
+                 case relay {
+                   description
+                     "Container for a list of the
+                      provider's DHCP servers (i.e.,
+                      'dhcp-service-type' is set to
+                      'relay').";
+                   leaf-list server-ip-address {
+                     type inet:ipv6-address;
+                     description
+                       "IPv6 addresses of the provider's
+                        DHCP server, for use by the local
+                        DHCP relay.";
+                   }
+                 }
+               }
+             }
+             choice dhcp-relay {
+               description
+                 "The DHCP relay is provided by the operator.";
+               container customer-dhcp-servers {
+                 description
+                   "Container for a list of the customer's DHCP servers.";
+                 leaf-list server-ip-address {
+                   type inet:ipv6-address;
+                   description
+                     "IPv6 addresses of the customer's DHCP server.";
+                 }
+               }
+             }
+           }
+           case static-addresses {
+             description
+               "Lists the IPv6 addresses that are used.";
+             leaf primary-address {
+               type leafref {
+                 path "../address/address-id";
+               }
+               description
+                 "Primary IP address of the connection.";
+             }
+             list address {
+               key "address-id";
+               description
+                 "Lists the IPv6 addresses that are used.";
+               leaf address-id {
+                 type string;
+                 description
+                   "An identifier of the static IPv6 address.";
+               }
+               leaf customer-address {
+                 type inet:ipv6-address;
+                 description
+                   "An IPv6 address of the customer side.";
+               }
+             }
+           }
+         }
+       }
+     }
+
+     /* Routing */
+     //BGP-generic
+     //BGP-extended
+
+     grouping bgp-base {
+       description
+         "Configuration specific to BGP.";
+       leaf description {
+         type string;
+         description
+           "Includes a description of the BGP
+            session.
+
+            This description is meant to be used
+            for diagnostic purposes.  The semantic
+            of the description is local to an
+            implementation.";
+       }
+       leaf local-as {
+         type inet:as-number;
+         description
+           "Indicates a local AS Number (ASN), if
+            an ASN distinct from the ASN configured
+            at the VPN node level is needed.";
+       }
+       leaf peer-as {
+         type inet:as-number;
+         mandatory true;
+         description
+           "Indicates the customer's ASN when
+            the customer requests BGP routing.";
+       }
+       leaf address-family {
+         type identityref {
+           base vpn-common:address-family;
+         }
+         description
+           "This node contains the address families
+            to be activated.  'dual-stack' means
+            that both IPv4 and IPv6 will be
+            activated.";
+       }
+       leaf multihop {
+         type uint8;
+         description
+           "Describes the number of IP hops allowed
+            between a given BGP neighbor and
+            the PE.";
+       }
+       leaf as-override {
+         type boolean;
+         default "false";
+         description
+           "Defines whether ASN override is
+            enabled, i.e., replacing the ASN of
+            the customer specified in the AS_PATH
+            attribute with the local ASN.";
+       }
+       leaf allow-own-as {
+         type uint8;
+         default "0";
+         description
+           "If set, specifies the maximum number of
+            occurrences of the provider's ASN that
+            are permitted within the AS_PATH
+            before it is rejected.";
+       }
+       leaf prepend-global-as {
+         type boolean;
+         default "false";
+         description
+           "In some situations, the ASN that is
+            provided at the VPN node level may be
+            distinct from the ASN configured at the
+            VPN network access level.  When such
+            ASNs are provided, they are both
+            prepended to the BGP route updates
+            for this access.  To disable that
+            behavior, 'prepend-global-as'
+            must be set to 'false'.  In such a
+            case, the ASN that is provided at
+            the VPN node level is not prepended
+            to the BGP route updates for
+            this access.";
+       }
+       leaf send-default-route {
+         type boolean;
+         default "false";
+         description
+           "Defines whether default routes can be
+            advertised to a peer.  If set, the
+            default routes are advertised to a
+            peer.";
+       }
+       leaf site-of-origin {
+         when "../address-family = 'vpn-common:ipv4' "
+            + "or 'vpn-common:dual-stack'" {
+           description
+             "Only applies if IPv4 is activated.";
+         }
+         type rt-types:route-origin;
+         description
+           "The Site of Origin attribute is encoded
+            as a Route Origin Extended Community.
+            It is meant to uniquely identify the
+            set of routes learned from a site via a
+            particular CE-PE connection and is used
+            to prevent routing loops.";
+         reference
+           "RFC 4364: BGP/MPLS IP Virtual Private
+                      Networks (VPNs), Section 7";
+       }
+       leaf ipv6-site-of-origin {
+         when "../address-family = 'vpn-common:ipv6' "
+            + "or 'vpn-common:dual-stack'" {
+           description
+             "Only applies if IPv6 is activated.";
+         }
+         type rt-types:ipv6-route-origin;
+         description
+           "The IPv6 Site of Origin attribute is
+            encoded as an IPv6 Route Origin
+            Extended Community.  It is meant to
+            uniquely identify the set of routes
+            learned from a site via VRF
+            information.";
+         reference
+           "RFC 5701: IPv6 Address Specific BGP
+                      Extended Community
+                      Attribute";
+       }
+       list redistribute-connected {
+         key "address-family";
+         description
+           "Indicates, per address family, the
+            policy to follow for connected
+            routes.";
+         leaf address-family {
+           type identityref {
+             base vpn-common:address-family;
+           }
+           description
+             "Indicates the address family.";
+         }
+         leaf enable {
+           type boolean;
+           description
+             "Enables the redistribution of
+              connected routes.";
+         }
+       }
+       container bgp-max-prefix {
+         description
+           "Controls the behavior when a prefix
+            maximum is reached.";
+         leaf max-prefix {
+           type uint32;
+           default "5000";
+           description
+             "Indicates the maximum number of BGP
+              prefixes allowed in the BGP session.
+
+              It allows control of how many
+              prefixes can be received from a
+              neighbor.
+
+              If the limit is exceeded, the action
+              indicated in 'violate-action' will be
+              followed.";
+           reference
+             "RFC 4271: A Border Gateway Protocol 4
+                        (BGP-4), Section 8.2.2";
+         }
+         leaf warning-threshold {
+           type decimal64 {
+             fraction-digits 5;
+             range "0..100";
+           }
+           units "percent";
+           default "75";
+           description
+             "When this value is reached, a warning
+              notification will be triggered.";
+         }
+         leaf violate-action {
+           type enumeration {
+             enum warning {
+               description
+                 "Only a warning message is sent to
+                  the peer when the limit is
+                  exceeded.";
+             }
+             enum discard-extra-paths {
+               description
+                 "Discards extra paths when the
+                  limit is exceeded.";
+             }
+             enum restart {
+               description
+                 "The BGP session restarts after
+                  the indicated time interval.";
+             }
+           }
+           description
+             "If the BGP neighbor 'max-prefix'
+              limit is reached, the action
+              indicated in 'violate-action'
+              will be followed.";
+         }
+         leaf restart-timer {
+           type uint32;
+           units "seconds";
+           description
+             "Time interval after which the BGP
+              session will be reestablished.";
+         }
+       }
+       container bgp-timers {
+         description
+           "Includes two BGP timers that can be
+            customized when building a VPN service
+            with BGP used as the CE-PE routing
+            protocol.";
+         leaf keepalive {
+           type uint16 {
+             range "0..21845";
+           }
+           units "seconds";
+           default "30";
+           description
+             "This timer indicates the KEEPALIVE
+              messages' frequency between a PE
+              and a BGP peer.
+
+              If set to '0', it indicates that
+              KEEPALIVE messages are disabled.
+
+              It is suggested that the maximum
+              time between KEEPALIVE messages be
+              one-third of the Hold Time
+              interval.";
+           reference
+             "RFC 4271: A Border Gateway Protocol 4
+                        (BGP-4), Section 4.4";
+         }
+         leaf hold-time {
+           type uint16 {
+             range "0 | 3..65535";
+           }
+           units "seconds";
+           default "90";
+           description
+             "Indicates the maximum number of
+              seconds that may elapse between the
+              receipt of successive KEEPALIVE
+              and/or UPDATE messages from the peer.
+
+              The Hold Time must be either zero or
+              at least three seconds.";
+           reference
+             "RFC 4271: A Border Gateway Protocol 4
+                        (BGP-4), Section 4.2";
+         }
+       }
+     }
+
+     grouping bgp-base-with-auth {
+       description
+         "Configuration specific to BGP.";
+       uses bgp-base;
+       uses ac-common:bgp-authentication;
+     }
+
+     //routing profile
+
+     grouping routing-profile {
+       description
+         "Defines routing protocols.";
+       list routing-protocol {
+         key "id";
+         description
+           "List of routing protocols used on the
+            CE-PE link.  This list can be augmented.";
+         leaf id {
+           type string;
+           description
+             "Unique identifier for the routing
+              protocol.";
+         }
+         leaf type {
+           type identityref {
+             base vpn-common:routing-protocol-type;
+           }
+           description
+             "Type of routing protocol.";
+         }
+         container bgp {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:bgp-routing')" {
+             description
+               "Only applies when the protocol is
+                BGP.";
+           }
+           description
+             "Configuration specific to BGP.";
+           uses bgp-base;
+         }
+         container ospf {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:ospf-routing')" {
+             description
+               "Only applies when the protocol is
+                OSPF.";
+           }
+           description
+             "Configuration specific to OSPF.";
+           uses ac-common:ospf-basic;
+           leaf max-lsa {
+             type uint32 {
+               range "1..4294967294";
+             }
+             description
+               "Maximum number of allowed Link State
+                Advertisements (LSAs) that the OSPF
+                instance will accept.";
+           }
+         }
+         container isis {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:isis-routing')" {
+             description
+               "Only applies when the protocol is
+                IS-IS.";
+           }
+           description
+             "Configuration specific to IS-IS.";
+           uses ac-common:isis-basic;
+           leaf level {
+             type identityref {
+               base vpn-common:isis-level;
+             }
+             description
+               "Can be 'level-1', 'level-2', or
+                'level-1-2'.";
+             reference
+               "RFC 9181: A Common YANG Data Model for
+                          Layer 2 and Layer 3 VPNs";
+           }
+           leaf metric {
+             type uint16;
+             default "1";
+             description
+               "Metric of the PE-CE link.  It is used
+                in the routing state calculation and
+                path selection.";
+           }
+           leaf mode {
+             type enumeration {
+               enum active {
+                 description
+                   "The interface sends or receives
+                    IS-IS protocol control packets.";
+               }
+               enum passive {
+                 description
+                   "Suppresses the sending of IS-IS
+                    updates through the specified
+                    interface.";
+               }
+             }
+             default "active";
+             description
+               "IS-IS interface mode type.";
+           }
+         }
+         container rip {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:rip-routing')" {
+             description
+               "Only applies when the protocol is RIP.
+                For IPv4, the model assumes that RIP
+                version 2 is used.";
+           }
+           description
+             "Configuration specific to RIP routing.";
+           leaf address-family {
+             type identityref {
+               base vpn-common:address-family;
+             }
+             description
+               "Indicates whether IPv4, IPv6, or both
+                address families are to be activated.";
+           }
+           container timers {
+             description
+               "Indicates the RIP timers.";
+             reference
+               "RFC 2453: RIP Version 2";
+             leaf update-interval {
+               type uint16 {
+                 range "1..32767";
+               }
+               units "seconds";
+               default "30";
+               description
+                 "Indicates the RIP update time, i.e.,
+                  the amount of time for which RIP
+                  updates are sent.";
+             }
+             leaf invalid-interval {
+               type uint16 {
+                 range "1..32767";
+               }
+               units "seconds";
+               default "180";
+               description
+                 "The interval before a route is
+                  declared invalid after no updates are
+                  received.  This value is at least
+                  three times the value for the
+                  'update-interval' argument.";
+             }
+             leaf holddown-interval {
+               type uint16 {
+                 range "1..32767";
+               }
+               units "seconds";
+               default "180";
+               description
+                 "Specifies the interval before better
+                  routes are released.";
+             }
+             leaf flush-interval {
+               type uint16 {
+                 range "1..32767";
+               }
+               units "seconds";
+               default "240";
+               description
+                 "Indicates the RIP flush timer, i.e.,
+                  the amount of time that must elapse
+                  before a route is removed from the
+                  routing table.";
+             }
+           }
+           leaf default-metric {
+             type uint8 {
+               range "0..16";
+             }
+             default "1";
+             description
+               "Sets the default metric.";
+           }
+         }
+         container vrrp {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:vrrp-routing')" {
+             description
+               "Only applies when the protocol is the
+                Virtual Router Redundancy Protocol
+                (VRRP).";
+           }
+           description
+             "Configuration specific to VRRP.";
+           reference
+             "RFC 5798: Virtual Router Redundancy
+                        Protocol (VRRP) Version 3 for
+                        IPv4 and IPv6";
+           leaf address-family {
+             type identityref {
+               base vpn-common:address-family;
+             }
+             description
+               "Indicates whether IPv4, IPv6, or both
+                address families are to be enabled.";
+           }
+           leaf ping-reply {
+             type boolean;
+             default "false";
+             description
+               "Controls whether the VRRP speaker
+                should reply to ping requests.";
+           }
+         }
+       }
+     }
+
+     grouping routing {
+       description
+         "Defines routing protocols.";
+       list routing-protocol {
+         key "id";
+         description
+           "List of routing protocols used on the
+            CE-PE link.  This list can be augmented.";
+         leaf id {
+           type string;
+           description
+             "Unique identifier for the routing
+              protocol.";
+         }
+         leaf type {
+           type identityref {
+             base vpn-common:routing-protocol-type;
+           }
+           description
+             "Type of routing protocol.";
+         }
+         list routing-profiles {
+           key "id";
+           description
+             "Routing profiles.";
+           leaf id {
+             type leafref {
+               path "/nw:networks/nw:network"
+                  + "/ac-ntw:specific-provisioning-profiles/valid-provider-identifiers"
+                  + "/routing-profile-identifier/id";
+             }
+             //type ac-svc:routing-profile-reference;
+             description
+               "Routing profile to be used.";
+           }
+           leaf type {
+             type identityref {
+               base vpn-common:ie-type;
+             }
+             description
+               "Import, export, or both.";
+           }
+         }
+         container static {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:static-routing')" {
+             description
+               "Only applies when the protocol is a
+                static routing protocol.";
+           }
+           description
+             "Configuration specific to static
+              routing.";
+           container cascaded-lan-prefixes {
+             description
+               "LAN prefixes from the customer.";
+             list ipv4-lan-prefixes {
+               if-feature "vpn-common:ipv4";
+               key "lan next-hop";
+               description
+                 "List of LAN prefixes for the site.";
+               uses ac-common:ipv4-static-rtg-entry;
+               leaf bfd-enable {
+                 if-feature "vpn-common:bfd";
+                 type boolean;
+                 description
+                   "Enables Bidirectional Forwarding
+                    Detection (BFD).";
+               }
+               leaf preference {
+                 type uint32;
+                 description
+                   "Indicates the preference associated
+                    with the static route.";
+               }
+               uses vpn-common:service-status;
+             }
+             list ipv6-lan-prefixes {
+               if-feature "vpn-common:ipv6";
+               key "lan next-hop";
+               description
+                 "List of LAN prefixes for the site.";
+               uses ac-common:ipv4-static-rtg-entry;
+               leaf bfd-enable {
+                 if-feature "vpn-common:bfd";
+                 type boolean;
+                 description
+                   "Enables BFD.";
+               }
+               leaf preference {
+                 type uint32;
+                 description
+                   "Indicates the preference associated
+                    with the static route.";
+               }
+               uses vpn-common:service-status;
+             }
+           }
+         }
+         container bgp {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:bgp-routing')" {
+             description
+               "Only applies when the protocol is
+                BGP.";
+           }
+           description
+             "Configuration specific to BGP.";
+           container peer-groups {
+             description
+               "Configuration for BGP peer-groups";
+             list peer-group {
+               key "name";
+               description
+                 "List of BGP peer-groups configured on the local system -
+                  uniquely identified by peer-group name";
+               leaf name {
+                 type string;
+                 description
+                   "Name of the BGP peer-group";
+               }
+               leaf local-address {
+                 type union {
+                   type inet:ip-address;
+                   type if:interface-ref;
+                 }
+                 description
+                   "Sets the local IP address to use for
+                    the BGP transport session.  This may be
+                    expressed as either an IP address or a
+                    reference to an interface.";
+               }
+               uses bgp-base-with-auth;
+             }
+           }
+           list neighbor {
+             key "remote-address";
+             description
+               "List of BGP neighbors.";
+             leaf remote-address {
+               type inet:ip-address;
+               description
+                 "The remote IP address of this entry's BGP peer.";
+             }
+             leaf local-address {
+               type union {
+                 type inet:ip-address;
+                 type if:interface-ref;
+               }
+               description
+                 "Sets the local IP address to use for
+                  the BGP transport session.  This may be
+                  expressed as either an IP address or a
+                  reference to an interface.";
+             }
+             leaf peer-group {
+               type leafref {
+                 path "../../peer-groups/peer-group/name";
+               }
+               description
+                 "The peer-group with which this neighbor is
+                  associated.";
+             }
+             uses bgp-base-with-auth;
+             uses vpn-common:service-status;
+           }
+         }
+         container ospf {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:ospf-routing')" {
+             description
+               "Only applies when the protocol is
+                OSPF.";
+           }
+           description
+             "Configuration specific to OSPF.";
+           uses ac-common:ospf-basic;
+           container sham-links {
+             if-feature "vpn-common:rtg-ospf-sham-link";
+             description
+               "List of sham links.";
+             reference
+               "RFC 4577: OSPF as the Provider/Customer
+                          Edge Protocol for BGP/MPLS IP
+                          Virtual Private Networks
+                          (VPNs), Section 4.2.7
+                RFC 6565: OSPFv3 as a Provider Edge to
+                          Customer Edge (PE-CE) Routing
+                          Protocol, Section 5";
+             list sham-link {
+               key "target-site";
+               description
+                 "Creates a sham link with another
+                  site.";
+               leaf target-site {
+                 type string;
+                 description
+                   "Target site for the sham link
+                    connection.  The site is referred
+                    to by its identifier.";
+               }
+               leaf metric {
+                 type uint16;
+                 default "1";
+                 description
+                   "Metric of the sham link.  It is
+                    used in the routing state
+                    calculation and path selection.
+                    The default value is set to '1'.";
+                 reference
+                   "RFC 4577: OSPF as the
+                              Provider/Customer Edge
+                              Protocol for BGP/MPLS IP
+                              Virtual Private Networks
+                              (VPNs), Section 4.2.7.3
+                    RFC 6565: OSPFv3 as a Provider Edge
+                              to Customer Edge (PE-CE)
+                              Routing Protocol,
+                              Section 5.2";
+               }
+             }
+           }
+           leaf max-lsa {
+             type uint32 {
+               range "1..4294967294";
+             }
+             description
+               "Maximum number of allowed Link State
+                Advertisements (LSAs) that the OSPF
+                instance will accept.";
+           }
+           uses ac-common:ospf-authentication;
+           uses vpn-common:service-status;
+         }
+         container isis {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:isis-routing')" {
+             description
+               "Only applies when the protocol is
+                IS-IS.";
+           }
+           description
+             "Configuration specific to IS-IS.";
+           uses ac-common:isis-basic;
+           leaf level {
+             type identityref {
+               base vpn-common:isis-level;
+             }
+             description
+               "Can be 'level-1', 'level-2', or
+                'level-1-2'.";
+             reference
+               "RFC 9181: A Common YANG Data Model for
+                          Layer 2 and Layer 3 VPNs";
+           }
+           leaf metric {
+             type uint16;
+             default "1";
+             description
+               "Metric of the PE-CE link.  It is used
+                in the routing state calculation and
+                path selection.";
+           }
+           leaf mode {
+             type enumeration {
+               enum active {
+                 description
+                   "The interface sends or receives
+                    IS-IS protocol control packets.";
+               }
+               enum passive {
+                 description
+                   "Suppresses the sending of IS-IS
+                    updates through the specified
+                    interface.";
+               }
+             }
+             default "active";
+             description
+               "IS-IS interface mode type.";
+           }
+           uses ac-common:isis-authentication;
+           uses vpn-common:service-status;
+         }
+         container rip {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:rip-routing')" {
+             description
+               "Only applies when the protocol is RIP.
+                For IPv4, the model assumes that RIP
+                version 2 is used.";
+           }
+           description
+             "Configuration specific to RIP routing.";
+           leaf address-family {
+             type identityref {
+               base vpn-common:address-family;
+             }
+             description
+               "Indicates whether IPv4, IPv6, or both
+                address families are to be activated.";
+           }
+           container timers {
+             description
+               "Indicates the RIP timers.";
+             reference
+               "RFC 2453: RIP Version 2";
+             leaf update-interval {
+               type uint16 {
+                 range "1..32767";
+               }
+               units "seconds";
+               default "30";
+               description
+                 "Indicates the RIP update time, i.e.,
+                  the amount of time for which RIP
+                  updates are sent.";
+             }
+             leaf invalid-interval {
+               type uint16 {
+                 range "1..32767";
+               }
+               units "seconds";
+               default "180";
+               description
+                 "The interval before a route is
+                  declared invalid after no updates are
+                  received.  This value is at least
+                  three times the value for the
+                  'update-interval' argument.";
+             }
+             leaf holddown-interval {
+               type uint16 {
+                 range "1..32767";
+               }
+               units "seconds";
+               default "180";
+               description
+                 "Specifies the interval before better
+                  routes are released.";
+             }
+             leaf flush-interval {
+               type uint16 {
+                 range "1..32767";
+               }
+               units "seconds";
+               default "240";
+               description
+                 "Indicates the RIP flush timer, i.e.,
+                  the amount of time that must elapse
+                  before a route is removed from the
+                  routing table.";
+             }
+           }
+           leaf default-metric {
+             type uint8 {
+               range "0..16";
+             }
+             default "1";
+             description
+               "Sets the default metric.";
+           }
+           uses ac-common:rip-authentication;
+           uses vpn-common:service-status;
+         }
+         container vrrp {
+           when "derived-from-or-self(../type, "
+              + "'vpn-common:vrrp-routing')" {
+             description
+               "Only applies when the protocol is the
+                Virtual Router Redundancy Protocol
+                (VRRP).";
+           }
+           description
+             "Configuration specific to VRRP.";
+           reference
+             "RFC 5798: Virtual Router Redundancy
+                        Protocol (VRRP) Version 3 for
+                        IPv4 and IPv6";
+           leaf address-family {
+             type identityref {
+               base vpn-common:address-family;
+             }
+             description
+               "Indicates whether IPv4, IPv6, or both
+                address families are to be enabled.";
+           }
+           leaf vrrp-group {
+             type uint8 {
+               range "1..255";
+             }
+             description
+               "Includes the VRRP group identifier.";
+           }
+           leaf backup-peer {
+             type inet:ip-address;
+             description
+               "Indicates the IP address of the peer.";
+           }
+           leaf-list virtual-ip-address {
+             type inet:ip-address;
+             description
+               "Virtual IP addresses for a single VRRP
+                group.";
+             reference
+               "RFC 5798: Virtual Router Redundancy
+                          Protocol (VRRP) Version 3 for
+                          IPv4 and IPv6,
+                          Sections 1.2 and 1.3";
+           }
+           leaf priority {
+             type uint8 {
+               range "1..254";
+             }
+             default "100";
+             description
+               "Sets the local priority of the VRRP
+                speaker.";
+           }
+           leaf ping-reply {
+             type boolean;
+             default "false";
+             description
+               "Controls whether the VRRP speaker
+                should reply to ping requests.";
+           }
+           uses vpn-common:service-status;
+         }
+       }
+     }
+
+     // OAM
+
+     grouping bfd {
+       description
+         "Grouping for BFD.";
+       leaf session-type {
+         type identityref {
+           base vpn-common:bfd-session-type;
+         }
+         default "vpn-common:classic-bfd";
+         description
+           "Specifies the BFD session type.";
+       }
+       leaf desired-min-tx-interval {
+         type uint32;
+         units "microseconds";
+         default "1000000";
+         description
+           "The minimum interval between
+            transmissions of BFD Control packets, as
+            desired by the operator.";
+         reference
+           "RFC 5880: Bidirectional Forwarding
+                      Detection (BFD),
+                      Section 6.8.7";
+       }
+       leaf required-min-rx-interval {
+         type uint32;
+         units "microseconds";
+         default "1000000";
+         description
+           "The minimum interval between received BFD
+            Control packets that the PE should
+            support.";
+         reference
+           "RFC 5880: Bidirectional Forwarding
+                      Detection (BFD),
+                      Section 6.8.7";
+       }
+       leaf local-multiplier {
+         type uint8 {
+           range "1..255";
+         }
+         default "3";
+         description
+           "Specifies the detection multiplier that
+            is transmitted to a BFD peer.
+
+            The detection interval for the receiving
+            BFD peer is calculated by multiplying the
+            value of the negotiated transmission
+            interval by the received detection
+            multiplier value.";
+         reference
+           "RFC 5880: Bidirectional Forwarding
+                      Detection (BFD),
+                      Section 6.8.7";
+       }
+       leaf holdtime {
+         type uint32;
+         units "milliseconds";
+         description
+           "Expected BFD holdtime.
+
+            The customer may impose some fixed
+            values for the holdtime period if the
+            provider allows the customer to use
+            this function.
+
+            If the provider doesn't allow the
+            customer to use this function,
+            fixed values will not be set.";
+         reference
+           "RFC 5880: Bidirectional Forwarding
+                      Detection (BFD),
+                      Section 6.8.18";
+       }
+     }
+
+     // AC profile
+
+     grouping ac-profile {
+       description
+         "Grouping for attachment circuit profiles.";
+       // Layer 2
+       container l2-connection {
+         description
+           "Defines Layer 2 protocols and parameters that
+            are required to enable AC connectivity.";
+         //uses l2-connection;
+       }
+       // Layer 3
+       container ip-connection {
+         description
+           "Defines IP connection parameters.";
+       }
+       // Routing
+       container routing-protocols {
+         description
+           "Defines routing protocols.";
+         uses routing-profile;
+       }
+       // OAM
+       container oam {
+         description
+           "Defines the Operations, Administration,
+            and Maintenance (OAM) mechanisms used.";
+         container bfd {
+           if-feature "vpn-common:bfd";
+           description
+             "Container for BFD.";
+           uses bfd;
+         }
+       }
+     }
+
+     //AC network provisioning
+
+     grouping ac {
+       description
+         "Grouping for attachment circuits.";
+       leaf description {
+         type string;
+         description
+           "Associates a description with an AC.";
+       }
+       // Layer 2
+       container l2-connection {
+         description
+           "Defines Layer 2 protocols and parameters that
+            are required to enable AC connectivity.";
+         uses l2-connection-if-ref;
+       }
+       // Layer 3
+       container ip-connection {
+         description
+           "Defines IP connection parameters.";
+         uses ip-connection;
+       }
+       // Routing
+       container routing-protocols {
+         description
+           "Defines routing protocols.";
+         uses routing;
+       }
+       // OAM
+       container oam {
+         description
+           "Defines the Operations, Administration,
+            and Maintenance (OAM) mechanisms used.";
+         container bfd {
+           description
+             "Container for BFD.";
+           leaf profile {
+             type leafref {
+               path "/nw:networks/nw:network"
+                  + "/ac-ntw:specific-provisioning-profiles"
+                  + "/valid-provider-identifiers"
+                  + "/bfd-profile-identifier/id";
+             }
+             //type ac-svc:bfd-profile-reference;
+             description
+               "Well-known service provider profile name.
+
+                The provider can propose some profiles
+                to the customer, depending on the
+                service level the customer wants to
+                achieve.";
+           }
+           uses bfd;
+           container authentication {
+             presence "Enables BFD authentication";
+             description
+               "Parameters for BFD authentication.";
+             leaf key-chain {
+               type key-chain:key-chain-ref;
+               description
+                 "Name of the key chain.";
+             }
+             leaf meticulous {
+               type boolean;
+               description
+                 "Enables meticulous mode.";
+               reference
+                 "RFC 5880: Bidirectional Forwarding
+                            Detection (BFD),
+                            Section 6.7";
+             }
+           }
+           uses vpn-common:service-status;
+         }
+       }
+       // Security
+       container security {
+         description
+           "Site-specific security parameters.";
+         container encryption {
+           if-feature "vpn-common:encryption";
+           description
+             "Container for AC security encryption.";
+           leaf enabled {
+             type boolean;
+             default "false";
+             description
+               "If set to 'true', traffic encryption on
+                the connection is required.  Otherwise,
+                it is disabled.";
+           }
+           leaf layer {
+             when "../enabled = 'true'" {
+               description
+                 "Included only when encryption
+                  is enabled.";
+             }
+             type enumeration {
+               enum layer2 {
+                 description
+                   "Encryption occurs at Layer 2.";
+               }
+               enum layer3 {
+                 description
+                   "Encryption occurs at Layer 3.
+                    For example, IPsec may be used when
+                    a customer requests Layer 3
+                    encryption.";
+               }
+             }
+             description
+               "Indicates the layer on which encryption
+                is applied.";
+           }
+         }
+         container encryption-profile {
+           when "../encryption/enabled = 'true'" {
+             description
+               "Indicates the layer on which encryption
+                is enabled.";
+           }
+           description
+             "Container for the encryption profile.";
+           choice profile {
+             description
+               "Choice for the encryption profile.";
+             case provider-profile {
+               leaf profile-name {
+                 type leafref {
+                   path "/nw:networks/nw:network"
+                      + "/ac-ntw:specific-provisioning-profiles"
+                      + "/valid-provider-identifiers"
+                      + "/encryption-profile-identifier/id";
+                 }
+                 //type ac-svc:encryption-profile-reference;
+                 description
+                   "Name of the service provider's
+                    profile to be applied.";
+               }
+             }
+             case customer-profile {
+               leaf customer-key-chain {
+                 type key-chain:key-chain-ref;
+                 description
+                   "Customer-supplied key chain.";
+               }
+             }
+           }
+         }
+       }
+     }
+
+     augment "/nw:networks/nw:network" {
+       description
+         "Add a list of profiles.";
+       // References to the profiles defined in the AC-SVC
+       container specific-provisioning-profiles {
+         description
+           "Contains a set of valid profiles to reference
+            in the AC activation.";
+         uses vpn-common:vpn-profile-cfg;
+       }
+       list ac-profile {
+         key "name";
+         description
+           "Maintains a list of AC profiles.";
+         leaf name {
+           type string;
+           description
+             "Name of the AC.";
+         }
+         uses ac-ntw:ac-profile;
+       }
+     }
+
+     augment "/nw:networks/nw:network/nw:node"
+           + "/sap:service/sap:sap" {
+       when '../../../nw:network-types/sap:sap-network' {
+         description
+           "Augmentation parameters apply only for SAP
+            networks.";
+       }
+       description
+         "Augments SAPs with AC provisioning details.";
+       list ac {
+         key "name";
+         description
+           "List of ACs.";
+         leaf name {
+           type string;
+           description
+             "A local AC identifier.";
+         }
+         leaf ac-ref {
+           type ac-svc:attachment-circuit-reference;
+           description
+             "A reference to the AC as exposed at the service
+              level.";
+         }
+         list ac-profile {
+           key "profile-id";
+           description
+             "List of AC profiles.";
+           leaf profile-id {
+             type leafref {
+               path "/nw:networks/nw:network/ac-profile/name";
+             }
+             description
+               "A reference to an AC profile.";
+           }
+         }
+         uses ac-ntw:ac;
+       }
+     }
+   }
+   <CODE ENDS>
+
+6.  Security Considerations
+
+   The YANG module specified in this document defines a schema for data
+   that is designed to be accessed via network management protocols such
+   as NETCONF [RFC6241] or RESTCONF [RFC8040].  The lowest NETCONF layer
+   is the secure transport layer, and the mandatory-to-implement secure
+   transport is Secure Shell (SSH) [RFC6242].  The lowest RESTCONF layer
+   is HTTPS, and the mandatory-to-implement secure transport is TLS
+   [RFC8446].
+
+   The Network Configuration Access Control Model (NACM) [RFC8341]
+   provides the means to restrict access for particular NETCONF or
+   RESTCONF users to a preconfigured subset of all available NETCONF or
+   RESTCONF protocol operations and content.
+
+   There are a number of data nodes defined in this YANG module that are
+   writable/creatable/deletable (i.e., config true, which is the
+   default).  These data nodes may be considered sensitive or vulnerable
+   in some network environments.  Write operations (e.g., edit-config)
+   and delete operations to these data nodes without proper protection
+   or authentication can have a negative effect on network operations.
+   These are the subtrees and data nodes and their sensitivity/
+   vulnerability in the "ietf-ac-ntw" module:
+
+   *  TBC
+
+   *  TBC
+
+   Some of the readable data nodes in this YANG module may be considered
+   sensitive or vulnerable in some network environments.  It is thus
+   important to control read access (e.g., via get, get-config, or
+   notification) to these data nodes.  These are the subtrees and data
+   nodes and their sensitivity/vulnerability in the "ietf-ac-svc"
+   module:
+
+   *  TBC
+
+   *  TBC
+
+7.  IANA Considerations
+
+   IANA is requested to register the following URI in the "ns"
+   subregistry within the "IETF XML Registry" [RFC3688]:
+
+      URI:  urn:ietf:params:xml:ns:yang:ietf-ac-ntw
+      Registrant Contact:  The IESG.
+      XML:  N/A; the requested URI is an XML namespace.
+
+   IANA is requested to register the following YANG module in the "YANG
+   Module Names" subregistry [RFC6020] within the "YANG Parameters"
+   registry.
+
+      Name:  ietf-ac-ntw
+      Maintained by IANA?  N
+      Namespace:  urn:ietf:params:xml:ns:yang:ietf-ac-ntw
+      Prefix:  ac-ntw
+      Reference:  RFC xxxx
+
+8.  References
+
+8.1.  Normative References
+
+   [I-D.boro-opsawg-teas-attachment-circuit]
+              Boucadair, M., Roberts, R., de Dios, O. G., Barguil, S.,
+              and B. Wu, "YANG Data Models for 'Attachment Circuits'-as-
+              a-Service (ACaaS)", Work in Progress, Internet-Draft,
+              draft-boro-opsawg-teas-attachment-circuit-02, 22 February
+              2023, <https://datatracker.ietf.org/doc/html/draft-boro-
+              opsawg-teas-attachment-circuit-02>.
+
+   [I-D.ietf-opsawg-sap]
+              Boucadair, M., de Dios, O. G., Barguil, S., Wu, Q., and V.
+              Lopez, "A YANG Network Model for Service Attachment Points
+              (SAPs)", Work in Progress, Internet-Draft, draft-ietf-
+              opsawg-sap-15, 18 January 2023,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-opsawg-
+              sap-15>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC3688]  Mealling, M., "The IETF XML Registry", BCP 81, RFC 3688,
+              DOI 10.17487/RFC3688, January 2004,
+              <https://www.rfc-editor.org/rfc/rfc3688>.
+
+   [RFC6020]  Bjorklund, M., Ed., "YANG - A Data Modeling Language for
+              the Network Configuration Protocol (NETCONF)", RFC 6020,
+              DOI 10.17487/RFC6020, October 2010,
+              <https://www.rfc-editor.org/rfc/rfc6020>.
+
+   [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
+              and A. Bierman, Ed., "Network Configuration Protocol
+              (NETCONF)", RFC 6241, DOI 10.17487/RFC6241, June 2011,
+              <https://www.rfc-editor.org/rfc/rfc6241>.
+
+   [RFC6242]  Wasserman, M., "Using the NETCONF Protocol over Secure
+              Shell (SSH)", RFC 6242, DOI 10.17487/RFC6242, June 2011,
+              <https://www.rfc-editor.org/rfc/rfc6242>.
+
+   [RFC6991]  Schoenwaelder, J., Ed., "Common YANG Data Types",
+              RFC 6991, DOI 10.17487/RFC6991, July 2013,
+              <https://www.rfc-editor.org/rfc/rfc6991>.
+
+   [RFC8040]  Bierman, A., Bjorklund, M., and K. Watsen, "RESTCONF
+              Protocol", RFC 8040, DOI 10.17487/RFC8040, January 2017,
+              <https://www.rfc-editor.org/rfc/rfc8040>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC8177]  Lindem, A., Ed., Qu, Y., Yeung, D., Chen, I., and J.
+              Zhang, "YANG Data Model for Key Chains", RFC 8177,
+              DOI 10.17487/RFC8177, June 2017,
+              <https://www.rfc-editor.org/rfc/rfc8177>.
+
+   [RFC8294]  Liu, X., Qu, Y., Lindem, A., Hopps, C., and L. Berger,
+              "Common YANG Data Types for the Routing Area", RFC 8294,
+              DOI 10.17487/RFC8294, December 2017,
+              <https://www.rfc-editor.org/rfc/rfc8294>.
+
+   [RFC8341]  Bierman, A. and M. Bjorklund, "Network Configuration
+              Access Control Model", STD 91, RFC 8341,
+              DOI 10.17487/RFC8341, March 2018,
+              <https://www.rfc-editor.org/rfc/rfc8341>.
+
+   [RFC8342]  Bjorklund, M., Schoenwaelder, J., Shafer, P., Watsen, K.,
+              and R. Wilton, "Network Management Datastore Architecture
+              (NMDA)", RFC 8342, DOI 10.17487/RFC8342, March 2018,
+              <https://www.rfc-editor.org/rfc/rfc8342>.
+
+   [RFC8343]  Bjorklund, M., "A YANG Data Model for Interface
+              Management", RFC 8343, DOI 10.17487/RFC8343, March 2018,
+              <https://www.rfc-editor.org/rfc/rfc8343>.
+
+   [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
+              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
+              <https://www.rfc-editor.org/rfc/rfc8446>.
+
+   [RFC9181]  Barguil, S., Gonzalez de Dios, O., Ed., Boucadair, M.,
+              Ed., and Q. Wu, "A Common YANG Data Model for Layer 2 and
+              Layer 3 VPNs", RFC 9181, DOI 10.17487/RFC9181, February
+              2022, <https://www.rfc-editor.org/rfc/rfc9181>.
+
+   [RFC9182]  Barguil, S., Gonzalez de Dios, O., Ed., Boucadair, M.,
+              Ed., Munoz, L., and A. Aguado, "A YANG Network Data Model
+              for Layer 3 VPNs", RFC 9182, DOI 10.17487/RFC9182,
+              February 2022, <https://www.rfc-editor.org/rfc/rfc9182>.
+
+   [RFC9291]  Boucadair, M., Ed., Gonzalez de Dios, O., Ed., Barguil,
+              S., and L. Munoz, "A YANG Network Data Model for Layer 2
+              VPNs", RFC 9291, DOI 10.17487/RFC9291, September 2022,
+              <https://www.rfc-editor.org/rfc/rfc9291>.
+
+8.2.  Informative References
+
+   [RFC8340]  Bjorklund, M. and L. Berger, Ed., "YANG Tree Diagrams",
+              BCP 215, RFC 8340, DOI 10.17487/RFC8340, March 2018,
+              <https://www.rfc-editor.org/rfc/rfc8340>.
+
+   [RFC8969]  Wu, Q., Ed., Boucadair, M., Ed., Lopez, D., Xie, C., and
+              L. Geng, "A Framework for Automating Service and Network
+              Management with YANG", RFC 8969, DOI 10.17487/RFC8969,
+              January 2021, <https://www.rfc-editor.org/rfc/rfc8969>.
+
+Appendix A.  Full Tree
+
+   module: ietf-ac-ntw
+     augment /nw:networks/nw:network:
+       +--rw specific-provisioning-profiles
+       |  +--rw valid-provider-identifiers
+       |     +--rw external-connectivity-identifier* [id]
+       |     |       {external-connectivity}?
+       |     |  +--rw id    string
+       |     +--rw encryption-profile-identifier* [id]
+       |     |  +--rw id    string
+       |     +--rw qos-profile-identifier* [id]
+       |     |  +--rw id    string
+       |     +--rw bfd-profile-identifier* [id]
+       |     |  +--rw id    string
+       |     +--rw forwarding-profile-identifier* [id]
+       |     |  +--rw id    string
+       |     +--rw routing-profile-identifier* [id]
+       |        +--rw id    string
+       +--rw ac-profile* [name]
+          +--rw name                 string
+          +--rw l2-connection
+          +--rw ip-connection
+          +--rw routing-protocols
+          |  +--rw routing-protocol* [id]
+          |     +--rw id      string
+          |     +--rw type?   identityref
+          |     +--rw bgp
+          |     |  +--rw description?              string
+          |     |  +--rw local-as?                 inet:as-number
+          |     |  +--rw peer-as                   inet:as-number
+          |     |  +--rw address-family?           identityref
+          |     |  +--rw multihop?                 uint8
+          |     |  +--rw as-override?              boolean
+          |     |  +--rw allow-own-as?             uint8
+          |     |  +--rw prepend-global-as?        boolean
+          |     |  +--rw send-default-route?       boolean
+          |     |  +--rw site-of-origin?           rt-types:route-origin
+          |     |  +--rw ipv6-site-of-origin?
+          |     |  |       rt-types:ipv6-route-origin
+          |     |  +--rw redistribute-connected* [address-family]
+          |     |  |  +--rw address-family    identityref
+          |     |  |  +--rw enable?           boolean
+          |     |  +--rw bgp-max-prefix
+          |     |  |  +--rw max-prefix?          uint32
+          |     |  |  +--rw warning-threshold?   decimal64
+          |     |  |  +--rw violate-action?      enumeration
+          |     |  |  +--rw restart-timer?       uint32
+          |     |  +--rw bgp-timers
+          |     |     +--rw keepalive?   uint16
+          |     |     +--rw hold-time?   uint16
+          |     +--rw ospf
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw area-id           yang:dotted-quad
+          |     |  +--rw metric?           uint16
+          |     |  +--rw max-lsa?          uint32
+          |     +--rw isis
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw area-address      area-address
+          |     |  +--rw level?            identityref
+          |     |  +--rw metric?           uint16
+          |     |  +--rw mode?             enumeration
+          |     +--rw rip
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw timers
+          |     |  |  +--rw update-interval?     uint16
+          |     |  |  +--rw invalid-interval?    uint16
+          |     |  |  +--rw holddown-interval?   uint16
+          |     |  |  +--rw flush-interval?      uint16
+          |     |  +--rw default-metric?   uint8
+          |     +--rw vrrp
+          |        +--rw address-family?   identityref
+          |        +--rw ping-reply?       boolean
+          +--rw oam
+             +--rw bfd {vpn-common:bfd}?
+                +--rw session-type?               identityref
+                +--rw desired-min-tx-interval?    uint32
+                +--rw required-min-rx-interval?   uint32
+                +--rw local-multiplier?           uint8
+                +--rw holdtime?                   uint32
+     augment /nw:networks/nw:network/nw:node/sap:service/sap:sap:
+       +--rw ac* [name]
+          +--rw name                 string
+          +--rw ac-ref?              ac-svc:attachment-circuit-reference
+          +--rw ac-profile* [profile-id]
+          |  +--rw profile-id    -> /nw:networks/network/ac-profile/name
+          +--rw description?         string
+          +--rw l2-connection
+          |  +--rw encapsulation
+          |  |  +--rw encap-type?        identityref
+          |  |  +--rw dot1q
+          |  |  |  +--rw tag-type?         identityref
+          |  |  |  +--rw cvlan-id?         uint16
+          |  |  |  +--rw tag-operations
+          |  |  |     +--rw (op-choice)?
+          |  |  |     |  +--:(pop)
+          |  |  |     |  |  +--rw pop?         empty
+          |  |  |     |  +--:(push)
+          |  |  |     |  |  +--rw push?        empty
+          |  |  |     |  +--:(translate)
+          |  |  |     |     +--rw translate?   empty
+          |  |  |     +--rw tag-1?             dot1q-types:vlanid
+          |  |  |     +--rw tag-1-type?
+          |  |  |     |       dot1q-types:dot1q-tag-type
+          |  |  |     +--rw tag-2?             dot1q-types:vlanid
+          |  |  |     +--rw tag-2-type?
+          |  |  |             dot1q-types:dot1q-tag-type
+          |  |  +--rw priority-tagged
+          |  |  |  +--rw tag-type?   identityref
+          |  |  +--rw qinq
+          |  |     +--rw tag-type?         identityref
+          |  |     +--rw svlan-id          uint16
+          |  |     +--rw cvlan-id          uint16
+          |  |     +--rw tag-operations
+          |  |        +--rw (op-choice)?
+          |  |        |  +--:(pop)
+          |  |        |  |  +--rw pop?         uint8
+          |  |        |  +--:(push)
+          |  |        |  |  +--rw push?        empty
+          |  |        |  +--:(translate)
+          |  |        |     +--rw translate?   uint8
+          |  |        +--rw tag-1?             dot1q-types:vlanid
+          |  |        +--rw tag-1-type?
+          |  |        |       dot1q-types:dot1q-tag-type
+          |  |        +--rw tag-2?             dot1q-types:vlanid
+          |  |        +--rw tag-2-type?
+          |  |                dot1q-types:dot1q-tag-type
+          |  +--rw (l2-service)?
+          |  |  +--:(l2-tunnel-service)
+          |  |  |  +--rw l2-tunnel-service
+          |  |  |     +--rw type?         identityref
+          |  |  |     +--rw pseudowire
+          |  |  |     |  +--rw vcid?      uint32
+          |  |  |     |  +--rw far-end?   union
+          |  |  |     +--rw vpls
+          |  |  |     |  +--rw vcid?      uint32
+          |  |  |     |  +--rw far-end*   union
+          |  |  |     +--rw vxlan
+          |  |  |        +--rw vni-id             uint32
+          |  |  |        +--rw peer-mode?         identityref
+          |  |  |        +--rw peer-ip-address*   inet:ip-address
+          |  |  +--:(l2vpn)
+          |  |     +--rw l2vpn-id?            vpn-common:vpn-id
+          |  +--rw l2-termination-point?      string
+          |  +--rw local-bridge-reference?    string
+          |  +--rw bearer-reference?          string
+          |  |       {vpn-common:bearer-reference}?
+          |  +--rw lag-interface {vpn-common:lag-interface}?
+          |     +--rw lag-interface-id?   string
+          |     +--rw member-link-list
+          |        +--rw member-link* [name]
+          |           +--rw name    string
+          +--rw ip-connection
+          |  +--rw l3-termination-point?   string
+          |  +--rw ipv4 {vpn-common:ipv4}?
+          |  |  +--rw local-address?
+          |  |  |       inet:ipv4-address
+          |  |  +--rw prefix-length?                           uint8
+          |  |  +--rw address-allocation-type?
+          |  |  |       identityref
+          |  |  +--rw (allocation-type)?
+          |  |     +--:(dynamic)
+          |  |     |  +--rw (address-assign)?
+          |  |     |  |  +--:(number)
+          |  |     |  |  |  +--rw number-of-dynamic-address?   uint16
+          |  |     |  |  +--:(explicit)
+          |  |     |  |     +--rw customer-addresses
+          |  |     |  |        +--rw address-pool* [pool-id]
+          |  |     |  |           +--rw pool-id          string
+          |  |     |  |           +--rw start-address
+          |  |     |  |           |       inet:ipv6-address
+          |  |     |  |           +--rw end-address?
+          |  |     |  |                   inet:ipv6-address
+          |  |     |  +--rw (provider-dhcp)?
+          |  |     |  |  +--:(dhcp-service-type)
+          |  |     |  |  |  +--rw dhcp-service-type?
+          |  |     |  |  |          enumeration
+          |  |     |  |  +--:(service-type)
+          |  |     |  |     +--rw (service-type)?
+          |  |     |  |        +--:(relay)
+          |  |     |  |           +--rw server-ip-address*
+          |  |     |  |                   inet:ipv6-address
+          |  |     |  +--rw (dhcp-relay)?
+          |  |     |     +--:(customer-dhcp-servers)
+          |  |     |        +--rw customer-dhcp-servers
+          |  |     |           +--rw server-ip-address*
+          |  |     |                   inet:ipv6-address
+          |  |     +--:(static-addresses)
+          |  |        +--rw primary-address?
+          |  |        |       -> ../address/address-id
+          |  |        +--rw address* [address-id]
+          |  |           +--rw address-id          string
+          |  |           +--rw customer-address?   inet:ipv6-address
+          |  +--rw ipv6 {vpn-common:ipv6}?
+          |     +--rw local-address?
+          |     |       inet:ipv6-address
+          |     +--rw prefix-length?                           uint8
+          |     +--rw address-allocation-type?
+          |     |       identityref
+          |     +--rw (allocation-type)?
+          |        +--:(dynamic)
+          |        |  +--rw (address-assign)?
+          |        |  |  +--:(number)
+          |        |  |  |  +--rw number-of-dynamic-address?   uint16
+          |        |  |  +--:(explicit)
+          |        |  |     +--rw customer-addresses
+          |        |  |        +--rw address-pool* [pool-id]
+          |        |  |           +--rw pool-id          string
+          |        |  |           +--rw start-address
+          |        |  |           |       inet:ipv6-address
+          |        |  |           +--rw end-address?
+          |        |  |                   inet:ipv6-address
+          |        |  +--rw (provider-dhcp)?
+          |        |  |  +--:(dhcp-service-type)
+          |        |  |  |  +--rw dhcp-service-type?
+          |        |  |  |          enumeration
+          |        |  |  +--:(service-type)
+          |        |  |     +--rw (service-type)?
+          |        |  |        +--:(relay)
+          |        |  |           +--rw server-ip-address*
+          |        |  |                   inet:ipv6-address
+          |        |  +--rw (dhcp-relay)?
+          |        |     +--:(customer-dhcp-servers)
+          |        |        +--rw customer-dhcp-servers
+          |        |           +--rw server-ip-address*
+          |        |                   inet:ipv6-address
+          |        +--:(static-addresses)
+          |           +--rw primary-address?
+          |           |       -> ../address/address-id
+          |           +--rw address* [address-id]
+          |              +--rw address-id          string
+          |              +--rw customer-address?   inet:ipv6-address
+          +--rw routing-protocols
+          |  +--rw routing-protocol* [id]
+          |     +--rw id                  string
+          |     +--rw type?               identityref
+          |     +--rw routing-profiles* [id]
+          |     |  +--rw id      leafref
+          |     |  +--rw type?   identityref
+          |     +--rw static
+          |     |  +--rw cascaded-lan-prefixes
+          |     |     +--rw ipv4-lan-prefixes* [lan next-hop]
+          |     |     |       {vpn-common:ipv4}?
+          |     |     |  +--rw lan           inet:ipv4-prefix
+          |     |     |  +--rw lan-tag?      string
+          |     |     |  +--rw next-hop      union
+          |     |     |  +--rw metric?       uint32
+          |     |     |  +--rw bfd-enable?   boolean {vpn-common:bfd}?
+          |     |     |  +--rw preference?   uint32
+          |     |     |  +--rw status
+          |     |     |     +--rw admin-status
+          |     |     |     |  +--rw status?        identityref
+          |     |     |     |  +--rw last-change?   yang:date-and-time
+          |     |     |     +--ro oper-status
+          |     |     |        +--ro status?        identityref
+          |     |     |        +--ro last-change?   yang:date-and-time
+          |     |     +--rw ipv6-lan-prefixes* [lan next-hop]
+          |     |             {vpn-common:ipv6}?
+          |     |        +--rw lan           inet:ipv4-prefix
+          |     |        +--rw lan-tag?      string
+          |     |        +--rw next-hop      union
+          |     |        +--rw metric?       uint32
+          |     |        +--rw bfd-enable?   boolean {vpn-common:bfd}?
+          |     |        +--rw preference?   uint32
+          |     |        +--rw status
+          |     |           +--rw admin-status
+          |     |           |  +--rw status?        identityref
+          |     |           |  +--rw last-change?   yang:date-and-time
+          |     |           +--ro oper-status
+          |     |              +--ro status?        identityref
+          |     |              +--ro last-change?   yang:date-and-time
+          |     +--rw bgp
+          |     |  +--rw peer-groups
+          |     |  |  +--rw peer-group* [name]
+          |     |  |     +--rw name                      string
+          |     |  |     +--rw local-address?            union
+          |     |  |     +--rw description?              string
+          |     |  |     +--rw local-as?                 inet:as-number
+          |     |  |     +--rw peer-as                   inet:as-number
+          |     |  |     +--rw address-family?           identityref
+          |     |  |     +--rw multihop?                 uint8
+          |     |  |     +--rw as-override?              boolean
+          |     |  |     +--rw allow-own-as?             uint8
+          |     |  |     +--rw prepend-global-as?        boolean
+          |     |  |     +--rw send-default-route?       boolean
+          |     |  |     +--rw site-of-origin?
+          |     |  |     |       rt-types:route-origin
+          |     |  |     +--rw ipv6-site-of-origin?
+          |     |  |     |       rt-types:ipv6-route-origin
+          |     |  |     +--rw redistribute-connected* [address-family]
+          |     |  |     |  +--rw address-family    identityref
+          |     |  |     |  +--rw enable?           boolean
+          |     |  |     +--rw bgp-max-prefix
+          |     |  |     |  +--rw max-prefix?          uint32
+          |     |  |     |  +--rw warning-threshold?   decimal64
+          |     |  |     |  +--rw violate-action?      enumeration
+          |     |  |     |  +--rw restart-timer?       uint32
+          |     |  |     +--rw bgp-timers
+          |     |  |     |  +--rw keepalive?   uint16
+          |     |  |     |  +--rw hold-time?   uint16
+          |     |  |     +--rw authentication
+          |     |  |        +--rw enable?            boolean
+          |     |  |        +--rw keying-material
+          |     |  |           +--rw (option)?
+          |     |  |              +--:(ao)
+          |     |  |              |  +--rw enable-ao?          boolean
+          |     |  |              |  +--rw ao-keychain?
+          |     |  |              |          key-chain:key-chain-ref
+          |     |  |              +--:(md5)
+          |     |  |              |  +--rw md5-keychain?
+          |     |  |              |          key-chain:key-chain-ref
+          |     |  |              +--:(explicit)
+          |     |  |                 +--rw key-id?             uint32
+          |     |  |                 +--rw key?                string
+          |     |  |                 +--rw crypto-algorithm?
+          |     |  |                         identityref
+          |     |  +--rw neighbor* [remote-address]
+          |     |     +--rw remote-address            inet:ip-address
+          |     |     +--rw local-address?            union
+          |     |     +--rw peer-group?
+          |     |     |       -> ../../peer-groups/peer-group/name
+          |     |     +--rw description?              string
+          |     |     +--rw local-as?                 inet:as-number
+          |     |     +--rw peer-as                   inet:as-number
+          |     |     +--rw address-family?           identityref
+          |     |     +--rw multihop?                 uint8
+          |     |     +--rw as-override?              boolean
+          |     |     +--rw allow-own-as?             uint8
+          |     |     +--rw prepend-global-as?        boolean
+          |     |     +--rw send-default-route?       boolean
+          |     |     +--rw site-of-origin?
+          |     |     |       rt-types:route-origin
+          |     |     +--rw ipv6-site-of-origin?
+          |     |     |       rt-types:ipv6-route-origin
+          |     |     +--rw redistribute-connected* [address-family]
+          |     |     |  +--rw address-family    identityref
+          |     |     |  +--rw enable?           boolean
+          |     |     +--rw bgp-max-prefix
+          |     |     |  +--rw max-prefix?          uint32
+          |     |     |  +--rw warning-threshold?   decimal64
+          |     |     |  +--rw violate-action?      enumeration
+          |     |     |  +--rw restart-timer?       uint32
+          |     |     +--rw bgp-timers
+          |     |     |  +--rw keepalive?   uint16
+          |     |     |  +--rw hold-time?   uint16
+          |     |     +--rw authentication
+          |     |     |  +--rw enable?            boolean
+          |     |     |  +--rw keying-material
+          |     |     |     +--rw (option)?
+          |     |     |        +--:(ao)
+          |     |     |        |  +--rw enable-ao?          boolean
+          |     |     |        |  +--rw ao-keychain?
+          |     |     |        |          key-chain:key-chain-ref
+          |     |     |        +--:(md5)
+          |     |     |        |  +--rw md5-keychain?
+          |     |     |        |          key-chain:key-chain-ref
+          |     |     |        +--:(explicit)
+          |     |     |           +--rw key-id?             uint32
+          |     |     |           +--rw key?                string
+          |     |     |           +--rw crypto-algorithm?   identityref
+          |     |     +--rw status
+          |     |        +--rw admin-status
+          |     |        |  +--rw status?        identityref
+          |     |        |  +--rw last-change?   yang:date-and-time
+          |     |        +--ro oper-status
+          |     |           +--ro status?        identityref
+          |     |           +--ro last-change?   yang:date-and-time
+          |     +--rw ospf
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw area-id           yang:dotted-quad
+          |     |  +--rw metric?           uint16
+          |     |  +--rw sham-links {vpn-common:rtg-ospf-sham-link}?
+          |     |  |  +--rw sham-link* [target-site]
+          |     |  |     +--rw target-site    string
+          |     |  |     +--rw metric?        uint16
+          |     |  +--rw max-lsa?          uint32
+          |     |  +--rw authentication
+          |     |  |  +--rw enable?            boolean
+          |     |  |  +--rw keying-material
+          |     |  |     +--rw (option)?
+          |     |  |        +--:(auth-key-chain)
+          |     |  |        |  +--rw key-chain?
+          |     |  |        |          key-chain:key-chain-ref
+          |     |  |        +--:(auth-key-explicit)
+          |     |  |           +--rw key-id?             uint32
+          |     |  |           +--rw key?                string
+          |     |  |           +--rw crypto-algorithm?   identityref
+          |     |  +--rw status
+          |     |     +--rw admin-status
+          |     |     |  +--rw status?        identityref
+          |     |     |  +--rw last-change?   yang:date-and-time
+          |     |     +--ro oper-status
+          |     |        +--ro status?        identityref
+          |     |        +--ro last-change?   yang:date-and-time
+          |     +--rw isis
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw area-address      area-address
+          |     |  +--rw level?            identityref
+          |     |  +--rw metric?           uint16
+          |     |  +--rw mode?             enumeration
+          |     |  +--rw authentication
+          |     |  |  +--rw enable?            boolean
+          |     |  |  +--rw keying-material
+          |     |  |     +--rw (option)?
+          |     |  |        +--:(auth-key-chain)
+          |     |  |        |  +--rw key-chain?
+          |     |  |        |          key-chain:key-chain-ref
+          |     |  |        +--:(auth-key-explicit)
+          |     |  |           +--rw key-id?             uint32
+          |     |  |           +--rw key?                string
+          |     |  |           +--rw crypto-algorithm?   identityref
+          |     |  +--rw status
+          |     |     +--rw admin-status
+          |     |     |  +--rw status?        identityref
+          |     |     |  +--rw last-change?   yang:date-and-time
+          |     |     +--ro oper-status
+          |     |        +--ro status?        identityref
+          |     |        +--ro last-change?   yang:date-and-time
+          |     +--rw rip
+          |     |  +--rw address-family?   identityref
+          |     |  +--rw timers
+          |     |  |  +--rw update-interval?     uint16
+          |     |  |  +--rw invalid-interval?    uint16
+          |     |  |  +--rw holddown-interval?   uint16
+          |     |  |  +--rw flush-interval?      uint16
+          |     |  +--rw default-metric?   uint8
+          |     |  +--rw authentication
+          |     |  |  +--rw enable?            boolean
+          |     |  |  +--rw keying-material
+          |     |  |     +--rw (option)?
+          |     |  |        +--:(auth-key-chain)
+          |     |  |        |  +--rw key-chain?
+          |     |  |        |          key-chain:key-chain-ref
+          |     |  |        +--:(auth-key-explicit)
+          |     |  |           +--rw key?                string
+          |     |  |           +--rw crypto-algorithm?   identityref
+          |     |  +--rw status
+          |     |     +--rw admin-status
+          |     |     |  +--rw status?        identityref
+          |     |     |  +--rw last-change?   yang:date-and-time
+          |     |     +--ro oper-status
+          |     |        +--ro status?        identityref
+          |     |        +--ro last-change?   yang:date-and-time
+          |     +--rw vrrp
+          |        +--rw address-family?       identityref
+          |        +--rw vrrp-group?           uint8
+          |        +--rw backup-peer?          inet:ip-address
+          |        +--rw virtual-ip-address*   inet:ip-address
+          |        +--rw priority?             uint8
+          |        +--rw ping-reply?           boolean
+          |        +--rw status
+          |           +--rw admin-status
+          |           |  +--rw status?        identityref
+          |           |  +--rw last-change?   yang:date-and-time
+          |           +--ro oper-status
+          |              +--ro status?        identityref
+          |              +--ro last-change?   yang:date-and-time
+          +--rw oam
+          |  +--rw bfd
+          |     +--rw profile?                    leafref
+          |     +--rw session-type?               identityref
+          |     +--rw desired-min-tx-interval?    uint32
+          |     +--rw required-min-rx-interval?   uint32
+          |     +--rw local-multiplier?           uint8
+          |     +--rw holdtime?                   uint32
+          |     +--rw authentication!
+          |     |  +--rw key-chain?    key-chain:key-chain-ref
+          |     |  +--rw meticulous?   boolean
+          |     +--rw status
+          |        +--rw admin-status
+          |        |  +--rw status?        identityref
+          |        |  +--rw last-change?   yang:date-and-time
+          |        +--ro oper-status
+          |           +--ro status?        identityref
+          |           +--ro last-change?   yang:date-and-time
+          +--rw security
+             +--rw encryption {vpn-common:encryption}?
+             |  +--rw enabled?   boolean
+             |  +--rw layer?     enumeration
+             +--rw encryption-profile
+                +--rw (profile)?
+                   +--:(provider-profile)
+                   |  +--rw profile-name?         leafref
+                   +--:(customer-profile)
+                      +--rw customer-key-chain?
+                              key-chain:key-chain-ref
+
+Acknowledgments
+
+   TODO acknowledge.
+
+Authors' Addresses
+
+   Mohamed Boucadair (editor)
+   Orange
+   Email: mohamed.boucadair@orange.com
+
+
+   Richard Roberts
+   Juniper
+   Email: rroberts@juniper.net
+
+
+   Oscar Gonzalez de Dios
+   Telefonica
+   Email: oscar.gonzalezdedios@telefonica.com
+
+
+   Samier Barguil Giraldo
+   Nokia
+   Email: samier.barguil_giraldo@nokia.com
+
+
+   Bo Wu
+   Huawei Technologies
+   Email: lana.wubo@huawei.com
