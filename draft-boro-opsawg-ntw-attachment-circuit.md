@@ -91,7 +91,7 @@ Connectivity services are provided by networks to customers via
    dedicated terminating points, such as Service Functions {{?RFC7665}},
    customer edges (CEs), peer Autonomous System Border Routers (ASBRs),
    data centers gateways, or Internet Exchange Points.
-   
+
 The procedure to provision a service in a service provider network may depend on the practices adopted by a service provider, including the flow put in place for the provisioning of advanced network services and how they are bound to an Attachment Circuit (AC). For example, the same AC may host multiple services (e.g., Layer 2 VPN, Slice Service, or Layer 3 VPN). In order to avoid service interference and redundant information in various locations, a service provider may expose an interface to manage ACs network-wide. Customers can then request a base AC to be put in place, and then refer to that AC when requesting services to be bound to that AC. {{!I-D.boro-opsawg-teas-attachment-circuit}} specifies a data model for managing attachment circuits as a service.
 
 This document specifies a network model for ACs ("ietf-ac-ntw"). The model can be used for the provisioning of ACs prior or during service provisioning.
