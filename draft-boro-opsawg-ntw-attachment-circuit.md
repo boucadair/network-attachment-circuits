@@ -87,13 +87,18 @@ The module augments the Service Attachment Point (SAP) model with the detailed i
 
 # Introduction
 
-The procedure to provision a service in a service provider network may depend on the practices adopted by a service provider, including the flow put in place for the provisioning of advanced network services and how they are bound to an attachment circuit (AC). For example, the same attachment circuit may be used to host multiple services (e.g., Layer 2 VPN, Slice Services, or Layer 3 VPN). In order to avoid service interference and redundant information in various locations, a service provider may expose an interface to manage attachment circuits network-wide. Customers can then request a base attachment circuit to be put in place, and then refer to that AC when requesting services to be bound to that AC. {{!I-D.boro-opsawg-teas-attachment-circuit}} specifies a data model for managing attachment circuits as a service.
+Connectivity services are provided by networks to customers via
+   dedicated terminating points, such as Service Functions {{?RFC7665}},
+   customer edges (CEs), peer Autonomous System Border Routers (ASBRs),
+   data centers gateways, or Internet Exchange Points.
+   
+The procedure to provision a service in a service provider network may depend on the practices adopted by a service provider, including the flow put in place for the provisioning of advanced network services and how they are bound to an Attachment Circuit (AC). For example, the same AC may host multiple services (e.g., Layer 2 VPN, Slice Service, or Layer 3 VPN). In order to avoid service interference and redundant information in various locations, a service provider may expose an interface to manage ACs network-wide. Customers can then request a base AC to be put in place, and then refer to that AC when requesting services to be bound to that AC. {{!I-D.boro-opsawg-teas-attachment-circuit}} specifies a data model for managing attachment circuits as a service.
 
-This document specifies a network model for attachment circuits ("ietf-ac-ntw"). The model can be used for the provisioning of attachment circuits prior or during service provisioning (e.g., Network Slice Service).
+This document specifies a network model for ACs ("ietf-ac-ntw"). The model can be used for the provisioning of ACs prior or during service provisioning.
 
 The document leverages {{!RFC9182}} and {{!RFC9291}} by adopting an AC provisioning structure that uses data nodes that are defined in these RFCs. Some refinements were introduced to cover, not only conventional service provider networks, but also specifics of other target deployments (cloud, for example).
 
-The AC network model is designed as an augmnetation to the Service Attachment Point (SAP) model {{!I-D.ietf-opsawg-sap}}. An AC can be bound to a single or multiple SAPs. Likewise, the model is designed to accomdate deployments where a SAP can be bound to one or multiple ACs.
+The AC network model is designed as an augmnetation to the Service Attachment Point (SAP) model {{!RFC9408}}. An AC can be bound to a single or multiple SAPs. Likewise, the model is designed to accomdate deployments where a SAP can be bound to one or multiple ACs.
 
 ~~~~
                     .---.
@@ -130,12 +135,11 @@ The AC network model uses the AC common model defined in {{!I-D.boro-opsawg-teas
 
  The YANG data model in this document conforms to the Network Management Datastore Architecture (NMDA) defined in {{!RFC8342}}.
 
-
 # Conventions and Definitions
 
 {::boilerplate bcp14-tagged}
 
-The reader should be familiar with the terms defined in {{Section 2 of !I-D.ietf-opsawg-sap}}.
+The reader should be familiar with the terms defined in {{Section 2 of !RFC9408}}.
 
 This document uses the term "network model" as defined in {{Section 2.1 of ?RFC8969}}.
 
@@ -159,9 +163,6 @@ Service provider network:
 
 Service provider:
 : A service provider that offers network services (e.g., Network Slice Services).
-
- Customer Terminating Point (CTP):
- : Refers to a customer-owned endpoint that terminates an attachment circuit. Such an endpoint can be a Customer Edge (CE), a Network Function (NF), a peer ASBR, etc.
 
 # Sample Uses of the Attachment Circuit Data Models
 
@@ -200,12 +201,12 @@ Service provider:
                  |        |                   |
                  | NETCONF/CLI..................
                  |        |                   |
-               +--------------------------------+
- +----+ Bearer |                                | Bearer +----+
- |CTP +--------+            Network             +--------+ CTP|
- +----+        |                                |        +----+
-               +--------------------------------+
-  Site A                                                  Site B
+                 +--------------------------------+
+   +----+ Bearer |                                | Bearer +----+
+   |CE#1+--------+            Network             +--------+CE#2|
+   +----+        |                                |        +----+
+                 +--------------------------------+
+   Site A                                                  Site B
 ~~~~
 {: #u-ex title="An Example of the Network AC Model Usage" artwork-align="center"}
 
@@ -213,9 +214,9 @@ Service provider:
 
 ## Overall Structure of the Module
 
-The overall tree structure of the module is shown in {{o-ntw-tree}}. A node can host one or more SAPs as per {{!I-D.ietf-opsawg-sap}}. Each SAP terminate one or multiple ACs. The SAP model in {{!I-D.ietf-opsawg-sap}} is thus augmented with required AC-related information. Also, in order to ease the correlation between the AC exposed at the service layer and the one that is actually provisioned in the network operation, a reference to the AC exposed to the customer  ('ac-ref') is stored in the 'ac-ntw' module.
+The overall tree structure of the module is shown in {{o-ntw-tree}}. A node can host one or more SAPs as per {{!RFC9408}}. Each SAP terminate one or multiple ACs. The SAP model in {{!RFC9408}} is thus augmented with required AC-related information. Also, in order to ease the correlation between the AC exposed at the service layer and the one that is actually provisioned in the network operation, a reference to the AC exposed to the customer  ('ac-ref') is stored in the 'ac-ntw' module.
 
-Unlike the AC service model, an AC is uniquely identified within the scope of a node, not a network. An AC can be characterized using Layer 2 connectivity, Layer 3 connectivity, routing protocols, OAM, and security considerations. In order to factorize a set of data that is provisioned for a set of ACs, a set of profiles can be defined at the network level, and then called under the node level. The information contained in the profile are thus inherited, unless the corresponding data node is refined at the AC level. In such as case, the value provided at the AC level takes precedence over the global one.
+Unlike the AC service model, an AC is uniquely identified within the scope of a node, not a network. An AC can be characterized using Layer 2 connectivity, Layer 3 connectivity, routing protocols, OAM, and security considerations. In order to factorize a set of data that is provisioned for a set of ACs, a set of profiles can be defined at the network level, and then called under the node level. The information contained in a profile is thus inherited, unless the corresponding data node is refined at the AC level. In such as case, the value provided at the AC level takes precedence over the global one.
 
 ~~~~
   augment /nw:networks/nw:network:
